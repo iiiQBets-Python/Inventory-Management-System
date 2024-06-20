@@ -1,0 +1,506 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Products {% endblock %}
+{% block styles %}
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        height: 35px;
+        width: calc(100% - 4%);
+        border: 1px solid #dfcdcd;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease-in-out;
+    }
+
+    .container {
+        margin-top: 60px;
+        margin-bottom: 20px;
+        width: calc(100% - 17%);
+        border: 2px solid #fffefe;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+        background-color: #ffffff;
+        overflow-y: auto;
+        max-height: 600px; 
+    }
+
+    .card-container {
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .custom-header {
+        text-align: center;
+        color: #0f5311;
+        margin-bottom: 30px;
+        overflow: hidden; 
+    }
+
+    select {
+        width: 50%;
+        height: 40px;
+    }
+
+    .btn-primary {
+        width: 25%;
+        height: 40px;
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle;
+        text-align: center;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 30%;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 15%;
+    }
+
+    .delete-btn {
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .align-center {
+        text-align: center;
+    }
+
+    #notes {
+        height: calc(100% - 9%);
+    }
+
+    .section-header {
+        font-size: 1.2em;
+        color: #0f5311;
+        background: linear-gradient(90deg, rgb(208, 250, 207) 0%, rgb(123, 249, 138) 100%);
+        padding-bottom: 10px;
+        padding-top: 1.5%;
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+        padding-left: 1%;
+    }
+
+    .header-align {
+        width: 43%;
+        text-align: center;
+        padding-left: 1%;
+    }
+
+    .subtotal,
+    .total {
+        background-color: #f2f2f2;
+    }
+
+    .delete-btn i {
+        margin-right: 5px;
+    }
+    .btn-primary {
+        background-color: #0f5311;
+        border-color: #0f5311;
+        width: 50%;
+    }
+
+    .btn-primary:hover {
+        background-color: #2c6fad; 
+        border-color: #0f5311; 
+    }
+    .custom-header.section-header.header-align {
+        font-size: 1.1em; 
+        color: #0f5311;
+        background: linear-gradient(90deg, rgb(208, 250, 207) 0%, rgb(123, 249, 138) 100%);
+        padding: 10px; 
+        padding-left: 20px; 
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+        width: 100%; 
+        text-align: center;
+    }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .actions-container {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+    }
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .table th,
+    .table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table th {
+        background-color: #f2f2f2;
+    }
+
+    .actions-container {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4),
+    .table th:nth-child(5),
+    .table td:nth-child(5), 
+    .table th:nth-child(6),
+    .table td:nth-child(6), 
+    .table th:nth-child(7),
+    .table td:nth-child(7), 
+    .table th:nth-child(8),
+    .table td:nth-child(8), 
+    .table th:nth-child(9),
+    .table td:nth-child(9) { 
+        width: 10%; 
+    }
+    
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h3 class="custom-header">Generate Invoice</h3>
+    <form id="invoiceForm" method="post" action="{% url 'create_invoice' %}">
+        {% csrf_token %}
+        <input type="hidden" name="items" id="items">
+        <div class="row">
+          <div class="col-md-4">
+            <p style="font-size: 16px;"><b>Company Name:</b>{{ company.name }}</p>
+            <p style="font-size: 16px;"><b>Contact:</b>{{ company.phone_number }}</p>
+            <p style="font-size: 16px;"><b>Email:</b>{{ company.email }}</p>
+            <p style="font-size: 16px;"><b>Address:</b>{{ company.address }}</p>
+            <p style="font-size: 16px;"><b>GSTIN:</b>{{ company.gst_no }}</p>
+        </div>
+            <!-- Customer Information Section -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" class="form-control" id="customer_name" name="customer_name" required list="customerList">
+                    <datalist id="customerList"></datalist>
+                </div>
+                <div class="form-group">
+                    <label for="customer_address">Customer Address</label>
+                    <input type="text" class="form-control" id="customer_address" name="customer_address" required>
+                </div>
+                <div class="form-group">
+                    <label for="customer_phone">Customer Phone</label>
+                    <input type="text" class="form-control" id="customer_phone" name="customer_phone" required>
+                </div>
+            </div>
+            <!-- Invoice Details Section -->
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="invoice_number">Invoice Number</label>
+                    <input type="text" class="form-control" id="invoice_number" name="invoice_number" value="INV{{ random_number }}" readonly>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="invoice_date">Invoice Date</label>
+                            <input type="date" class="form-control" id="invoice_date" name="invoice_date" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="due_date">Due Date</label>
+                            <input type="date" class="form-control" id="due_date" name="due_date" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="order_id">Order ID</label>
+                    <select class="form-control" id="order_id" name="order_id" required>
+                        <option value="">Select Order</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h5 class="custom-header section-header header-align">Items Details</h5>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Product Description</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Tax Type</th>
+                            <th>Tax Rate(%)</th>
+                            <th>Tax Amount</th>
+                            <th>Discount(%)</th>
+                            <th>Subtotal</th>
+                            <!-- <th>Actions</th> -->
+                        </tr>
+                    </thead>
+                    <tbody id="itemsTableBody">
+                        <tr>
+                            <td><input type="text" class="form-control" name="product[]" readonly></td>
+                            <td><input type="text" class="form-control" name="item_description[]" readonly></td>
+                            <td><input type="number" class="form-control" name="quantity[]" required></td>
+                            <td><input type="number" class="form-control" name="unit_price[]" required></td>
+                            <td>
+                                <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
+                                    <option value="">Select Tax Type</option>
+                                    <option value="GST">GST</option>
+                                    <option value="VAT">VAT</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control" name="tax_rate[]" readonly></td>
+                            <td><input type="number" class="form-control" name="tax_amount[]" readonly></td>
+                            <td><input type="number" class="form-control" name="discount[]" value="0" required></td>
+                            <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
+                            <td class="actions-container">
+                                <!-- <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-success delete-btn" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                                    <button type="button" class="btn btn-danger delete-btn" onclick="removeRow(this)"><i class="fas fa-trash"></i></button>
+                                </div> -->
+                            </td>
+                        </tr>                        
+                    </tbody>
+                </table>
+                
+            </div>
+        </div>
+
+        <hr>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes"></textarea>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-8 d-flex justify-content-end">
+                        <div class="form-group">
+                            <label for="total">Total</label>
+                            <input type="text" class="form-control" id="total" name="total" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>
+        
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary">Generate Invoice</button>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const customers = JSON.parse(`{{ customer|safe }}`);
+        const orders = JSON.parse(`{{ order|safe }}`);
+        const taxRates = {
+            'GST': 18,
+            'VAT': 12
+        };
+
+        const customerList = document.getElementById('customerList');
+        const orderSelect = document.getElementById('order_id');
+
+        customers.forEach(customer => {
+            const option = document.createElement('option');
+            option.value = customer.id;
+            option.textContent = customer.name;
+            customerList.appendChild(option);
+        });
+
+        orders.forEach(order => {
+            const option = document.createElement('option');
+            option.value = order.id;
+            option.textContent = `Order ${order.id}`;
+            orderSelect.appendChild(option);
+        });
+
+        orderSelect.addEventListener('change', function() {
+            const orderId = this.value;
+            const selectedOrder = orders.find(order => order.id === parseInt(orderId));
+
+            if (selectedOrder) {
+                const selectedCustomerId = selectedOrder.customer_id;
+                const selectedCustomer = customers.find(customer => customer.id === selectedCustomerId);
+
+                if (selectedCustomer) {
+                    document.getElementById('customer_name').value = selectedCustomer.name;
+                    document.getElementById('customer_address').value = selectedCustomer.address;
+                    document.getElementById('customer_phone').value = selectedCustomer.phone;
+                }
+
+                const itemsTableBody = document.getElementById('itemsTableBody');
+                itemsTableBody.innerHTML = '';
+
+                selectedOrder.details.forEach(detail => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><input type="text" class="form-control" name="product[]" value="${detail.product}" readonly></td>
+                        <td><input type="text" class="form-control" name="item_description[]" value="${detail.description}" readonly></td>
+                        <td><input type="number" class="form-control" name="quantity[]" value="${detail.quantity}" required></td>
+                        <td><input type="number" class="form-control" name="unit_price[]" value="${detail.unit_price}" step="0.01" required></td>
+                        <td>
+                            <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
+                                <option value="">Select Tax Type</option>
+                                <option value="GST">GST</option>
+                                <option value="VAT">VAT</option>
+                            </select>
+                        </td>
+                        <td><input type="number" class="form-control" name="tax_rate[]" readonly></td>
+                        <td><input type="number" class="form-control" name="tax_amount[]" readonly></td>
+                        <td><input type="number" class="form-control" name="discount[]" value="0" required></td>
+                        <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
+                        <td class="actions-container">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-success delete-btn" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                                <button type="button" class="btn btn-danger delete-btn" onclick="removeRow(this)"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </td>
+                    `;
+
+                    itemsTableBody.appendChild(row);
+                });
+
+                updateSubtotals();
+            }
+        });
+
+        document.getElementById('invoiceForm').addEventListener('input', function(event) {
+            const target = event.target;
+            if (target && target.name === 'tax_type[]') {
+                fetchTaxRate(target);
+            } else {
+                updateSubtotals();
+            }
+        });
+
+        function fetchTaxRate(selectElement) {
+            const taxType = selectElement.value;
+            const taxRateInput = selectElement.closest('tr').querySelector('input[name="tax_rate[]"]');
+            const taxAmountInput = selectElement.closest('tr').querySelector('input[name="tax_amount[]"]');
+
+            const taxRate = taxRates[taxType] || 0;
+            taxRateInput.value = taxRate.toFixed(2);
+
+            updateSubtotals();
+        }
+
+        function updateSubtotals() {
+            const rows = document.querySelectorAll('#itemsTableBody tr');
+            let total = 0;
+
+            rows.forEach(row => {
+                const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+                const unitPrice = parseFloat(row.querySelector('input[name="unit_price[]"]').value) || 0;
+                const taxRate = parseFloat(row.querySelector('input[name="tax_rate[]"]').value) || 0;
+                const discount = parseFloat(row.querySelector('input[name="discount[]"]').value) || 0;
+
+                const taxAmount = (quantity * unitPrice * taxRate) / 100;
+                const subtotal = (quantity * unitPrice) + taxAmount - discount;
+
+                row.querySelector('input[name="tax_amount[]"]').value = taxAmount.toFixed(2);
+                row.querySelector('input[name="subtotal[]"]').value = subtotal.toFixed(2);
+
+                total += subtotal;
+            });
+
+            document.getElementById('total').value = total.toFixed(2);
+        }
+    });
+
+    function addRow() {
+        const itemsTableBody = document.getElementById('itemsTableBody');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><input type="text" class="form-control" name="product[]" readonly></td>
+            <td><input type="text" class="form-control" name="item_description[]" readonly></td>
+            <td><input type="number" class="form-control" name="quantity[]" required></td>
+            <td><input type="number" class="form-control" name="unit_price[]" required></td>
+            <td>
+                <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
+                    <option value="">Select Tax Type</option>
+                    <option value="GST">GST</option>
+                    <option value="VAT">VAT</option>
+                </select>
+            </td>
+            <td><input type="number" class="form-control" name="tax_rate[]" readonly></td>
+            <td><input type="number" class="form-control" name="tax_amount[]" readonly></td>
+            <td><input type="number" class="form-control" name="discount[]" value="0" required></td>
+            <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
+            <td class="actions-container">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-success delete-btn" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                    <button type="button" class="btn btn-danger delete-btn" onclick="removeRow(this)"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        itemsTableBody.appendChild(row);
+        updateSubtotals();
+    }
+
+    function removeRow(button) {
+        const row = button.closest('tr');
+        row.remove();
+        updateSubtotals();
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Your existing JavaScript code
+
+        document.getElementById('invoiceForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const items = [];
+
+        document.querySelectorAll('#itemsTableBody tr').forEach(row => {
+            const product = row.querySelector('input[name="product[]"]').value;
+            const item_description = row.querySelector('input[name="item_description[]"]').value;
+            const quantity = parseInt(row.querySelector('input[name="quantity[]"]').value);
+            const unit_price = parseFloat(row.querySelector('input[name="unit_price[]"]').value);
+            const subtotal = parseFloat(row.querySelector('input[name="subtotal[]"]').value);
+            const tax_type = row.querySelector('select[name="tax_type[]"]').value;
+            const tax_rate = parseFloat(row.querySelector('input[name="tax_rate[]"]').value);
+            const tax_amount = parseFloat(row.querySelector('input[name="tax_amount[]"]').value);
+            const discount = parseFloat(row.querySelector('input[name="discount[]"]').value) || 0;
+
+            items.push({ product, item_description, quantity, unit_price, subtotal, tax_type, tax_rate, tax_amount, discount });
+        });
+
+        document.getElementById('items').value = JSON.stringify(items);
+        alert('Invoice successfully generated!');
+        this.submit();
+    });
+    });
+</script>
+
+{% endblock %}
+
+

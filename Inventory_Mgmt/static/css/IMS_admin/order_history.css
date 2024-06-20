@@ -1,0 +1,35 @@
+
+
+.card {
+    max-width: 100%;
+    margin-top: 70px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+  }
+
+  .card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .list-group-item {
+    padding: 0.5rem 0;
+    border: none;
+  }
+
+  .list-group-item:first-child {
+    border-top: none;
+  }
+
+  .list-group-item:last-child {
+    border-bottom: none;
+  }
+
+  .card-title {
+    font-weight: bold; /* Making the heading bold */
+  }

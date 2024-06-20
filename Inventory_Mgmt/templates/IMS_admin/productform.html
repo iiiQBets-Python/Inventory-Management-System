@@ -1,0 +1,306 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Add Products {% endblock %}
+{% block styles %}
+
+  <style>
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .form-control {
+      border-radius: 5px;
+      height: 40px; 
+      border: 1px solid #dfcdcd; 
+      background-color: #ffffff;
+      transition: border-color 0.2s ease-in-out; 
+    }
+  
+    .form-control:hover {
+      border-color: #4e7454;
+    }
+    .form-control:focus {
+      background-color: #f2f2f2; 
+      border-color: #4e7454; 
+    }
+
+    .container {
+    margin-top: 100px; 
+    width: 80%;
+    left: 200px;
+    border: 2px solid #fffefe;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+    background-color: #ffffff;
+  }
+
+    .custom-header {
+      text-align: center;
+      color: #264f36;
+      margin-bottom: 30px;
+    }
+
+    select {
+      width: 100%;
+      height: 40px; 
+    }
+
+    .custom-file-label {
+      border: 2px solid #ced4da; 
+      border-radius: 5px; 
+      padding: 8px 12px; 
+      cursor: pointer; 
+    }
+
+    .custom-file-label:hover {
+      background-color: #c6d8ea; 
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      color: #000000; 
+      background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+      padding-bottom: 10px; 
+      padding-top: 1.5%;
+      margin-bottom: 20px; 
+      box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+      padding-left: 12%;
+    }
+
+    .image-container {
+      text-align: center;
+      padding-top: 2%;
+    }
+
+    .drag-drop-area {
+      height: 130px;
+      border: 2px dashed #ccc;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .upload-label {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .buttons {
+      margin-left: -15px;
+    }
+
+  </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <h3 class="custom-header">Add Product</h3>
+  <form method="POST" action="{% url 'add_products' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-md-4">
+        <h4 class="section-title">Product Information</h4>
+        <div class="form-group">
+          <label for="product_id">Product ID</label>
+          <input type="text" class="form-control" id="product_id" name="product_id" maxlength="10" required>
+        </div>
+        <div class="form-group">
+          <label for="category_name">Category</label>
+          <select class="form-control" id="category_name" name="category_name" required>
+            {% for cat in category %}
+            <option value="{{ cat.name }}">{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="product_name">Product Name</label>
+          <input type="text" class="form-control" id="product_name" name="product_name" maxlength="100" required>
+        </div>
+        <div class="form-group row">
+          <div class="col-md-6">
+            <label for="sku">SKU</label>
+            <input type="text" class="form-control" id="sku" name="sku" maxlength="20" placeholder="Stock Keeping Unit">
+          </div>
+          <div class="col-md-6">
+            <label for="unit">Unit</label>
+            <select class="form-control" id="unit" name="unit" required>
+              <option value="Piece">Piece</option>
+              <option value="Dozen">Dozen</option>
+              <option value="Kilogram">Kilogram</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="weight">Weight</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="weight" name="weight" placeholder="Weight">
+            <div class="input-group-append">
+              <select class="custom-select" id="weightUnit" name="weightUnit">
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+                <option value="lb">lb</option>
+                <option value="oz">oz</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="dimensions">Dimensions (L x W x H)</label>
+          <div class="input-group">
+            <input type="number" class="form-control" id="length" name="length" placeholder="Length">
+            <input type="number" class="form-control" id="width" name="width" placeholder="Width">
+            <input type="number" class="form-control" id="height" name="height" placeholder="Height">
+            <div class="input-group-append">
+              <select class="custom-select" id="dimensionUnit" name="dimensionUnit">
+                <option value="cm">cm</option>
+                <option value="inch">inch</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <label for="cost_price">Cost Price</label>
+            <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01" placeholder="Cost Price">
+          </div>
+          <div class="col-md-6">
+            <label for="selling_price">Selling Price</label>
+            <input type="number" class="form-control" id="selling_price" name="selling_price" step="0.01" placeholder="Selling Price">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h4 class="section-title">Supplier Information</h4>
+        <div class="form-group">
+          <label for="manufacturer_name">Manufacturer</label>
+          <select class="form-control" id="manufacturer_name" name="manufacturer_name" required>
+            {% for man in manu %}
+            <option value="{{ man.id }}">{{ man.Company_Name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="brand_name">Brand</label>
+          <select class="form-control" id="brand_name" name="brand_name" required>
+            {% for br in brand %}
+            <option value="{{ br.name }}">{{ br.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="upc">UPC</label>
+          <input type="text" class="form-control" id="upc" name="upc" maxlength="12" placeholder="Universal Product Code">
+        </div>
+        <div class="form-group">
+          <label for="ean">EAN</label>
+          <input type="text" class="form-control" id="ean" name="ean" maxlength="13" placeholder="European Article Number">
+        </div>
+        <div class="form-group">
+          <label for="mpn">MPN</label>
+          <input type="text" class="form-control" id="mpn" name="mpn" maxlength="50" placeholder="Manufacturer Part Number">
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h4 class="section-title">Additional Details</h4>
+        <div class="form-group">
+          <label for="image">Image</label>
+          <div id="dragDropArea" class="drag-drop-area">
+            <p>Drag & Drop or <label for="emp_imageInput" name="image" class="upload-label"><i class="fas fa-image"></i>Browse</label> to upload Image</p>
+            <input type="file" id="emp_imageInput" name="image" style="display: none;">
+          </div>
+          <img id="imagePreview" src="#" alt="Image Preview" style="max-width: 100%; display: none;">
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="5" style="resize: none;" placeholder="Description"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-12 mt-4">
+      <div class="buttons">
+        <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
+        <button type="button" class="btn btn-sm btn-danger" onclick="clearForm()">Clear</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+<script>
+  document.getElementById('emp_imageInput').addEventListener('change', function() {
+    var fileName = this.files[0].name;
+    var label = document.querySelector('.upload-label');
+    label.innerText = fileName;
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('emp_imageInput');
+    const dragDropArea = document.getElementById('dragDropArea');
+    const imagePreview = document.getElementById('imagePreview');
+
+    dragDropArea.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+
+    dragDropArea.addEventListener('dragleave', function() {
+      this.classList.remove('dragover');
+    });
+
+    dragDropArea.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      handleImageUpload(file);
+    });
+
+    imageInput.addEventListener('change', function() {
+      const file = this.files[0];
+      handleImageUpload(file);
+    });
+
+    function handleImageUpload(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        imagePreview.src = e.target.result;
+        imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function clearForm() {
+    document.getElementById("product_id").value = "";
+    document.getElementById("category_name").value = "";
+    document.getElementById("product_name").value = "";
+    document.getElementById("sku").value = "";
+    document.getElementById("unit").value = "";
+    document.getElementById("weight").value = "";
+    document.getElementById("weightUnit").value = "";
+    document.getElementById("length").value = "";
+    document.getElementById("width").value = "";
+    document.getElementById("height").value = "";
+    document.getElementById("dimensionUnit").value = "";
+    document.getElementById("cost_price").value = "";
+    document.getElementById("selling_price").value = "";
+    document.getElementById("manufacturer_name").value = "";
+    document.getElementById("brand_name").value = "";
+    document.getElementById("upc").value = "";
+    document.getElementById("ean").value = "";
+    document.getElementById("mpn").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("imagePreview").style.display = 'none';
+    document.querySelector('.upload-label').innerText = "Browse";
+  }
+</script>
+{% endblock %}

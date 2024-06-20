@@ -1,0 +1,127 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} IMS - Dashboard {% endblock %}
+{% block styles %}
+<style>
+    
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
+
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px; 
+        padding: 30px;
+        margin-left: 200px;
+
+    }
+    .card {
+        background-color: #fff;
+        border-radius: 6px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: transform 0.2s;
+        max-width: 380px; 
+        width: 100%; 
+    }
+    .card:hover {
+        transform: translateY(-3px);
+    }
+    .card-header {
+        font-family: 'Open Sans', Arial, sans-serif;
+        color: rgb(0, 0, 0);
+        height: 40px; 
+        align-items: center;
+    }
+    .card-body {
+        padding: 20px; 
+        text-align: center
+    }
+    .card.total .card-header {
+        background-color: #64c667;
+    }
+    .card.today .card-header {
+        background-color: #6ab4f0;
+    }
+    .card-header h4 {
+        font-size: 1.1em; 
+    }
+    .card-body p {
+        font-size: 1.8em; 
+    }
+    .bottom-cards {
+        margin-left: 200px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px; 
+        padding: 30px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h3>Welcome to IMS Dashboard</h3>
+<div class="dashboard">
+    <div class="card total">
+        <div class="card-header">
+            <h4>Total Sales</h4>
+        </div>
+        <div class="card-body">
+
+            <p>{{ invoice_count }}</p>
+         </div>
+    </div>
+    <div class="card total">
+        <div class="card-header">
+            <h4>Total Revenue</h4>
+        </div>
+        <div class="card-body">
+
+            <p>Rs {{ total_revenue }}</p>
+
+        </div>
+    </div>
+    <div class="card total">
+        <div class="card-header">
+            <h4>Total Stock Available</h4>
+        </div>
+        <div class="card-body">
+            <p>800</p>
+        </div>
+    </div>
+</div>
+<div class="bottom-cards">
+    <div class="card today">
+        <div class="card-header">
+            <h4>Today's Sales</h4>
+        </div>
+        <div class="card-body">
+
+            <p>{{ today_sales }}</p>
+
+        </div>
+    </div>
+    <div class="card today">
+        <div class="card-header">
+            <h4>Today's Revenue</h4>
+        </div>
+        <div class="card-body">
+
+            <p>{{ todays_revenue }}</p>
+
+
+
+        </div>
+    </div>
+    <div class="card today">
+        <div class="card-header">
+            <h4>ABCD</h4>
+        </div>
+        <div class="card-body">
+            <p>abcd</p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
+
+

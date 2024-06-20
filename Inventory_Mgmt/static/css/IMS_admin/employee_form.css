@@ -1,0 +1,160 @@
+.form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    border-radius: 5px;
+    height: 40px; 
+    border: 1px solid #dfcdcd; 
+    background-color: #ffffff;
+    transition: border-color 0.2s ease-in-out; 
+  }
+
+  .form-control:hover {
+    border-color: #007bff;
+  }
+  
+  .form-control:focus {
+    background-color: #f2f2f2; 
+    border-color: #007bff; 
+  }
+
+  .modal-content {
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+    background-color: #ffffff;
+  }
+
+  .modal-header {
+    background-color: rgb(201, 230, 253);
+    
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+  }
+
+  .modal-footer {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  .dropdown-icon {
+    display: flex;
+    align-items: center; 
+  }
+  
+  .dropdown-icon button {
+    border-radius: 100%;
+    padding: 0.3rem;
+    margin-left: 5px;
+    margin-right: -10px; /* Adjust margin to align the button to the right of the label */
+  }
+
+  .container {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border: 2px solid #fffefe;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+    background-color: #ffffff;
+  }
+
+  .custom-header {
+    text-align: center;
+    color: #0279f9e0;
+    margin-bottom: 30px;
+  }
+
+  .small-button {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6rem;
+  }
+  .emp_dep-input {
+    width: 32%;
+    height: 40px; 
+  }
+
+  #title {
+      width: 80%;
+      height: 40px; 
+    }
+
+  #gender {
+      width: 100%;
+      height:40px;
+  }
+
+  .custom-file-label {
+    border: 2px solid #ced4da; 
+    border-radius: 5px; 
+    padding: 8px 12px; 
+    cursor: pointer; 
+  }
+
+  .custom-file-label:hover {
+    background-color: #c6d8ea; 
+  }
+
+  .section-title {
+    font-size: 1.2em;
+    color: #2f88e8; 
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgb(201, 230, 253) 100%);
+    padding-bottom: 10px; 
+    padding-top: 1.5%;
+    margin-bottom: 20px; 
+    box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+    padding-left: 12%;
+  }
+
+  .image-container {
+    text-align: center;
+    padding-top: 2%;
+  }
+
+  .drag-drop-area {
+    height: 135px;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .upload-label {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .buttons {
+    margin-left: -15px;
+  }
+  
+  .file-list {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  .file-list li {
+    font-size: 12px; 
+    margin-bottom: 5px; 
+  }
+
+  .cancel-btn {
+    cursor: pointer;
+    margin-left: 5px; 
+    color: red; 
+  }
+
+  .close {
+    font-size: 30px;
+    font-weight: bold;
+    color: black; /* Default color */
+    cursor: pointer;
+}
+
+.close:hover {
+    color: red; /* Color changes to red on hover */
+}

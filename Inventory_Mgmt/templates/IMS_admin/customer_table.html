@@ -1,0 +1,388 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Products {% endblock %}
+{% block styles %}
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f8f9fa;
+    font-size: 14px; 
+    padding: 5px;
+}
+
+.container {
+    padding: 10px;
+}
+
+.card-container {
+    padding: 10px; 
+}
+.table-container {
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+    width: calc(100% - 9%); 
+    border: 1px solid #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #eff5f7;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: smaller;
+    position: relative;
+    margin-left: 1%; 
+    margin-right: auto; 
+    margin-bottom: 15px;
+}
+
+.table-container th,
+.table-container td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-container th {
+    background-color: #264f36;
+    color: #ffffff;
+}
+
+.table-container th:hover {
+    background-color: #218838;
+    cursor: pointer;
+}
+
+.table-container tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.table-container tbody tr:hover {
+    background-color: #e9ecef;
+    cursor: pointer;
+}
+
+.action-buttons button {
+    padding: 4px 8px; 
+    font-size: 10px; 
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.action-buttons button i {
+    margin-right: 2px; 
+}
+
+.edit-button:hover {
+    color: #007bff;
+}
+
+.delete-button:hover {
+    color: #dc3545;
+}
+
+.button-container {
+    display: flex; /* Change to flex for alignment */
+    justify-content: space-between; /* Distribute buttons evenly */
+    align-items: center; /* Align items vertically */
+    margin-bottom: 10px;
+}
+
+.modal-content {
+    width: 100%;
+    padding: 20px;
+}
+
+.pagination {
+    margin-top: 8px;
+    float: right;
+    font-size: 10px; 
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 4px 8px; 
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border: 1px solid #32ec25;
+    margin-right: 5px;
+    font-size: smaller;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #264f36;
+}
+
+.search-input {
+    font-size: 12px; 
+}
+
+.btn-primary {
+    font-size: 12px;
+}
+.background-color {
+    background-color: #4CAF50;
+    color: white; 
+}
+
+.btn-success.csv-pdf-copy {
+    padding: 8px 14px; 
+    font-size: 12px; 
+    border-radius: 5px;
+    margin-left: 5px; 
+}
+
+.btn-success.csv-pdf-copy:hover {
+    background-color: #264f36; 
+    border-color: #218838; 
+}
+
+
+.edit-button,
+.delete-button {
+    background-color: transparent;
+    padding: 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-button i,
+.delete-button i {
+    margin-right: 4px;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-evenly;
+}
+.btn-sm {
+    color: #eaecf1;
+    font-size: 8px;
+    border-radius: 50%;
+    background-color: #65ab80;
+}
+
+.btn-sm:hover {
+    color: #ffffff;
+    background-color: #264f36;
+}
+</style>
+{% endblock %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <button type="button" id="sidebarCollapse" class="btn btn-info">
+        <i class="fas fa-align-left"></i>
+        <span>Toggle Sidebar</span>
+    </button>
+  </div>
+</nav>
+
+<div class="container">
+    <div class="table-container">  
+        <div class="row mb-2">
+            <div class="col-12">
+                <div class="button-container">
+                    <button class="btn btn-success" id="addcustomerForm"><i class="fas fa-plus"></i> Add Customers</button>
+                    <div class="action-buttons">
+                        <button class="btn btn-success csv-pdf-copy" id="csvExportBtn"><i class="fas fa-file-csv"></i> CSV</button>
+                        <button class="btn btn-success csv-pdf-copy" id="pdfExportBtn"><i class="fas fa-file-pdf"></i> PDF</button>
+                        <button class="btn btn-success csv-pdf-copy" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div> 
+        
+        <hr style="border-top: 2px solid #b3b1b1;">   
+        <div class="table-responsive">
+            <table class="table table-striped" id="myTable">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Customer_ID</th>
+                        <th>Customer Name</th>
+                        <th>Email</th>
+                        <th>GST Number</th>
+                        <th>City</th>
+                        <th>Sales Person</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for customer in customers %}
+                    <tr>
+                        <td>
+                            <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addModal{{ customer.customer_id }}"><i class="fas fa-plus"></i></button>
+                        </td>
+                        <td>{{ customer.customer_id }}</td>
+                        <td>{{ customer.first_name }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.gst_no }}</td>
+                        <td>{{ customer.city }}</td>
+                        <td>
+                            {% if customer.sales_employee %}
+                                {{ customer.sales_employee  }}
+                            {% else %}
+                            <form class="assignForm" method="post" action="{% url 'assign_sales_employee' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="customer_id" value="{{ customer.id }}">
+                                    <select name="sales_employee">
+                                        {% for employee in sales_employee %}
+                                            <option value="{{ employee.id }}">{{ employee.First_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="assign-button" name="assign_sales_employee">Assign</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'edit_customer' customer.customer_id %}">
+                                    <button class="edit-button">
+                                        <i class="fas fa-pencil-alt"></i>
+                                    </button>
+                                </a>
+                                <form id="deleteForm{{ customer.id }}" action="{% url 'delete_customer' customer.customer_id %}" method="post" class="deleteForm">
+                                    {% csrf_token %}
+                                    <button type="button" class="delete-button" onclick="confirm('Are you sure you want to delete this Customer?') ? document.getElementById('deleteForm{{ customer.id }}').submit() : null;"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Template -->
+{% for customer in customers %}
+<div class="modal fade" id="addModal{{ customer.customer_id }}" tabindex="-1" aria-labelledby="addModalLabel{{ customer.customer_id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header background-color">
+                <h5 class="modal-title background-color" id="addModalLabel{{ customer.customer_id }}">Additional Fields</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>            
+            <div class="modal-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Sales Employee</td>
+                            <td>{{ customer.sales_employee }}</td>
+                        </tr>
+                        <tr>
+                            <td>Aadhar Number</td>
+                            <td>{{ customer.aadhar_no }}</td>
+                        </tr>
+                        <tr>
+                            <td>Pan Number</td>
+                            <td>{{ customer.pan_no }}</td>
+                        </tr>
+                        <tr>
+                            <td>Billing Address</td>
+                            <td>{{ customer.current_address }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.0/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.72/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.72/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.0/js/buttons.html5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        var table = $('#myTable').DataTable({
+            searching: true, 
+            lengthMenu: [5, 10, 25, 50, 100], 
+            buttons: [
+                {
+                    extend: 'copy',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6] 
+                    }
+                },
+                {
+                    extend: 'csv',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6] 
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    exportOptions: {
+                        columns: [1, 2, 3, 4, 5, 6] 
+                    }
+                }
+            ]
+        });
+
+        $('#csvExportBtn').on('click', function() {
+            table.buttons('.buttons-csv').trigger();
+        });
+    
+        $('#pdfExportBtn').on('click', function() {
+            table.buttons('.buttons-pdf').trigger();
+        });
+    
+        $('#copyBtn').on('click', function() {
+            table.buttons('.buttons-copy').trigger();
+        });
+    
+        $(".deleteForm").submit(function(e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to delete this customer?")) {
+                var form = $(this);
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function(data) {
+                        alert("Customer deleted successfully!");
+                        form.closest('tr').remove();
+                    },
+                    error: function(data) {
+                        alert("An error occurred while deleting the customer.");
+                    }
+                });
+            }
+        });
+    
+        $(document).on('click', '#assignForm', function(e) {
+            e.preventDefault();
+            if (confirm("Are you sure you want to assign this Employee?")) {
+                var form = $(this);
+                $.ajax({
+                    type: form.attr('method'),
+                    url: form.attr('action'),
+                    data: form.serialize(),
+                    success: function(data) {
+                        alert("Sales Employee assigned Successfully!");
+                    },
+                    error: function(data) {
+                        alert("An error occurred while assigning the sales employee.");
+                    }
+                });
+            }
+        });
+    });
+
+    document.getElementById("addcustomerForm").onclick = function () {
+        location.href = "{% url 'add_customers' %}";
+    };
+</script>
+{% endblock %}

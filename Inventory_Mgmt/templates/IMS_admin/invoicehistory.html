@@ -1,0 +1,295 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} Products {% endblock %}
+{% block styles %}
+<style> 
+    .table th, .table td {
+        font-size: small;
+        color: #000000;
+        border-color: #000000; 
+    }
+    .table th.description {
+        font-size: small;
+        width: 30%;
+    }
+    .total-amount {
+        font-weight: bold;
+        color: #0f5311;
+    }
+    .card-container {
+        padding: 10px; 
+        display: flex;
+        justify-content: center;
+    }
+
+   .card {
+        width: calc(100% - 9%);
+        border: 2px solid #040404cc;
+        border-radius: 10px;
+        padding: 10px;
+        padding-right: 10px; 
+        margin-top: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+    }
+    .card-header p {
+        margin-bottom: 5px;
+        color: #171e17;
+    }
+    .card-header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.678); 
+    }
+    #totalTaxAmount,
+    #totalAmount {
+        background-color: #6f756f; 
+        color: #fff; 
+        padding: 5px 10px;
+    }
+
+    .card-body {
+        overflow: auto;
+    }
+    .float-right {
+        float: right;
+        padding-right: 20px;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .addresses-container {
+        display: flex;
+    }
+
+    .address-section {
+        margin-right: 85px; 
+    }
+    .btn-success {
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="addresses-container">
+                        <div class="address-section">
+                            <p><small><strong>Company Address:</strong></small></p>
+                            <p><small>{{ cmp_details.name }}</small></p>
+                            <p><small>{{ cmp_details.address }}</small></p>
+                            <p><small>{{ cmp_details.pincode }}</small></p>
+                        </div>
+                        <div class="address-section">
+                            <p><small><strong>Billing Details:</strong></small></p>
+                            <p><small>{{customer.first_name}}</small></p>
+                            <p><small>{{customer.address}}</small></p>
+                            <p><small>{{customer.city}}</small></p>
+                        </div>
+                        <div class="address-section">
+                            <p><small><strong>Shipping Address:</strong></small></p>
+                            <p><small>{{customer.first_name}}</small></p>
+                            <p><small>{{customer.address}}</small></p>
+                            <p><small>{{customer.city}}</small></p>
+                        </div>
+                    </div>
+                    <div class="invoice-details">
+                        <p><small><strong>Invoice Number:</strong> INV -{{ invoice.id }}</small></p>
+                        <p><small><strong>Invoice Details:</strong> {{ invoice.customer }}</small></p>
+                        <p><small><strong>Invoice Date:</strong> {{invoice.invoice_date}}</small></p>
+                        <p><small><strong>Due Date:</strong> {{invoice.due_date}}</small></p>
+                    </div>
+                </div>
+                <hr>
+                <div class="card-body">
+                    <table class="table table-bordered" id="invoiceTable">
+                        <thead>
+                            <tr style="background-color: #808d80;">
+                                <th>Sl. No</th>
+                                <th class="description">Description</th>
+                                <th>Unit Price</th>
+                                <th>Discount</th>
+                                <th>Qty</th>
+                                <th>Net Amount</th>
+                                <th>Tax Rate</th>
+                                <th>Tax Type</th>
+                                <th>Tax Amount</th>
+                                <th>Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in invoice_details %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td class="description"><b>{{ item.product_name }}</b> - {{ item.description }}</td>
+                                <td>{{ item.selling_price }}</td>
+                                <td>{{ item.discount|default:"0" }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.net_amount }}</td>
+                                <td>{{ item.tax_rate|default:"0" }}</td>
+                                <td>{{ item.tax_type|default:"0" }}</td>
+                                <td>{{item.tax_amount|default:"0"}}</td>
+                                <td class="net-total">{{ item.net_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="8" class="text-right">Total:</td>
+                                <td id="totalTaxAmount">₹0.00</td>
+                                <td id="totalAmount">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="10" class="text-left">
+                                    Total Amount in Words: <strong id="totalInWords"></strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="10" class="text-left">
+                                    <div class="text-center mt-4 float-right">
+                                        <a href="{% url 'generate_invoice_pdf' id=invoice.id %}" class="btn btn-success">
+                                            <i class="fas fa-download fa-xs"></i> Download
+                                        </a>
+                                    </div>
+                                    <b>Terms and Conditions:</b>
+                                    <ul>
+                                        <li>Payment must be made within 30 days of invoice date.</li>
+                                        <li>Returns accepted within 14 days of delivery.</li>
+                                        <li>We are not responsible for damages incurred during shipping.</li>
+                                    </ul>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+$(document).ready(function() {
+    function updateTotalInWords(amount) {
+        var words = convertToIndianCurrency(Math.floor(amount));
+        $('#totalInWords').text(words.charAt(0).toUpperCase() + words.slice(1) + ' only.');
+    }
+
+       // Function to convert number to Indian currency text format
+       function convertToIndianCurrency(number) {
+            const numberWords = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                                "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tensWords = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            if (number === 0) {
+                return "Zero";
+            }
+
+            if (number < 20) {
+                return numberWords[number];
+            }
+
+            if (number < 100) {
+                return tensWords[Math.floor(number / 10)] + (number % 10 !== 0 ? " " + numberWords[number % 10] : "");
+            }
+
+            if (number < 1000) {
+                return numberWords[Math.floor(number / 100)] + " Hundred" + (number % 100 !== 0 ? " " + convertToIndianCurrency(number % 100) : "");
+            }
+
+            if (number < 100000) {
+                return convertToIndianCurrency(Math.floor(number / 1000)) + " Thousand" + (number % 1000 !== 0 ? " " + convertToIndianCurrency(number % 1000) : "");
+            }
+
+            if (number < 10000000) {
+                return convertToIndianCurrency(Math.floor(number / 100000)) + " Lakh" + (number % 100000 !== 0 ? " " + convertToIndianCurrency(number % 100000) : "");
+            }
+
+            if (number < 1000000000) {
+                return convertToIndianCurrency(Math.floor(number / 10000000)) + " Crore" + (number % 10000000 !== 0 ? " " + convertToIndianCurrency(number % 10000000) : "");
+            }
+
+            return "Number too large";
+        }
+
+
+    function calculateTotal() {
+        var totalAmount = 0;
+        var totalTaxAmount = 0;
+        $('#invoiceTable tbody tr').each(function() {
+            var netAmountText = $(this).find('td:nth-child(10)').text().replace('₹', '').trim();
+            var netTotal = parseFloat(netAmountText) || 0;
+            totalAmount += netTotal;
+
+            var taxAmountText = $(this).find('td:nth-child(9)').text().replace('₹', '').trim();
+            var taxAmount = parseFloat(taxAmountText) || 0;
+            totalTaxAmount += taxAmount;
+        });
+        $('#totalTaxAmount').text('₹' + totalTaxAmount.toFixed(2));
+        $('#totalAmount').text('₹' + totalAmount.toFixed(2));
+        updateTotalInWords(totalAmount);
+    }
+    calculateTotal();
+
+    function downloadInvoiceAsPDF(invoiceId) {
+        const url = `/IMS_Admin/invoice_pdf/invoice.id${invoiceId}/`;// Django template tag for the URL
+
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4', true); // Create a new jsPDF instance
+                const elementsToHide = [
+                    document.querySelector("#downloadBtn"),
+                    document.querySelector(".heading"),
+                    document.querySelector(".extraInfo")
+                ];
+
+                // Hide the elements
+                elementsToHide.forEach(element => {
+                    if (element) {
+                        element.style.display = 'none';
+                    }
+                });
+
+                html2canvas(document.querySelector(".card"), {
+                    scale: 2,
+                    useCORS: true,
+                    logging: true,
+                    allowTaint: true,
+                    backgroundColor: "#ffffff"
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 2.0);
+                    const imgWidth = pdf.internal.pageSize.getWidth() - 10;
+                    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                    const xPos = 5;
+                    const yPos = 30;
+
+                    pdf.addImage(imgData, 'JPEG', xPos, yPos, imgWidth, imgHeight);
+                    pdf.save("invoice.pdf");
+
+                    // Show the elements again
+                    elementsToHide.forEach(element => {
+                        if (element) {
+                            element.style.display = 'block';
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching invoice HTML:', error));
+    }
+
+    $('#downloadBtn').click(function() {
+        const invoiceId = $(this).data('invoice-id'); // Assuming the button has a data attribute with the invoice ID
+        downloadInvoiceAsPDF(invoiceId);
+    });
+    
+});
+</script>
+{% endblock %}

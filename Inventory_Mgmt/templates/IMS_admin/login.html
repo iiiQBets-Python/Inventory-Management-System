@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Form</title>
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.left-image, .right-image {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+}
+
+.left-image {
+    left: 0;
+    background-image: url('https://i.pinimg.com/originals/5c/87/b3/5c87b3c0466f830a480ba2214af2c73d.png');
+}
+
+.right-image {
+    right: 0;
+    background-image: url('https://images.ctfassets.net/wowgx05xsdrr/6S5n1hbJkaLgrEVD68TzRZ/d8e750a0f6363cb89f55c39487304ce1/small-business-shipping-tips-hero-img-02.png?fm=webp&w=3840&q=75');
+}
+
+.form-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(194, 222, 247, 0.756);
+    padding: 50px;
+    border-radius: 20px; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    width: 25%;
+    height: 55%;
+}
+
+.form-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-control {
+    width: 100%;
+    padding: 15px; 
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px; 
+    box-sizing: border-box;
+}
+
+.btn-login, .btn-register {
+    width: 48%;
+    margin: 5px;
+    background-color: #1f8bff;
+    color: black;
+    padding: 10px; 
+    border: none;
+    border-radius: 10px; 
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center;
+}
+
+.btn-login:hover, .btn-register:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+.forgot-password {
+    text-align: right;
+    margin-top: 10px;
+}
+
+.forgot-password a {
+    color:#0056b3;
+    text-decoration: none;
+    font-size: small;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon input {
+    padding-left: 30px; 
+}
+
+.input-icon {
+    position: absolute;
+    top: 33%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    left: 8px; 
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.btn-register {
+    font-size: smaller;
+}
+
+</style>
+</head>
+<body>
+
+<div class="left-image"></div>
+<div class="right-image"></div>
+
+<div class="form-container">
+    <h2>Login</h2>
+    <!-- Messages display code -->
+    {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    <form action="{% url 'admin_login' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="uID" class="form-label"><b>User ID</b></label>
+            <div class="input-with-icon">
+                <input type="text" id="uID" name="uID" class="form-control" placeholder="Enter User ID" required>
+                <span class="input-icon"><i class="fas fa-id-badge"></i></span>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label for="psw" class="form-label"><b>Password</b></label>
+            <div class="input-with-icon">
+                <input type="password" id="psw" name="psw" class="form-control" placeholder="Enter Password" required>
+                <span class="input-icon"><i class="fas fa-lock"></i></span>
+            </div>
+        </div>        
+        <!-- Buttons container -->
+        <div class="button-container">
+            <button type="submit" class="btn btn-login">Login</button>
+            <a href="{% url 'register' %}" class="btn btn-register ">Register</a>
+        </div>
+        <div class="forgot-password">
+            <a href="#">Forgot password?</a>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+</body>
+</html>

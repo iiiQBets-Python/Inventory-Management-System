@@ -1,0 +1,177 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice pdf</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        .header-section {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #000;
+        }
+        .invoice-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: right;
+        }
+        .details-section {
+            margin-bottom: 20px;
+        }
+        .details-section p {
+            margin-bottom: 5px;
+        }
+        .details-section .small-font {
+            font-size: small;
+        }
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .invoice-table th, .invoice-table td {
+            padding: 8px;
+            border-bottom: 1px solid #000;
+            text-align: left;
+        }
+        .invoice-table th {
+            background-color: #808d80;
+            color: #fff;
+            
+        }
+        #totalTaxAmount, #totalAmount {
+            background-color: #d3d3d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-section">
+            <div class="invoice-title">
+                INVOICE
+            </div>
+        </div>
+        <div class="details-section">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Company Details</strong></td>
+                        <td><strong>Invoice Details</strong></td>
+                    </tr>
+                    <tr>
+                        <td>{{ cmp_details.name }}</td>
+                        <td>Invoice Number: INV-{{ invoice.id }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ cmp_details.address }}</td>
+                        <td>Customer: {{ invoice.customer }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ cmp_details.pincode }}</td>
+                        <td>Invoice Date: {{ invoice.invoice_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ cmp_details.phone_number }}</td>
+                        <td>Due Date: {{ invoice.due_date }}</td>
+                    </tr>
+                    <tr>
+                        <td>{{ cmp_details.email }}</td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>___________________________________________________________________________________________________________</p>
+        <div class="details-section">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td><strong>Order Details</strong></td>
+                        <td><strong>Bill To:</strong></td>
+                        <td><strong>Ship To:</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Order ID: {{ ord.id }}</td>
+                        <td>{{ customer.first_name }}</td>
+                        <td>{{ customer.first_name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Order Date: {{ ord.order_date|date:'Y-m-d' }}</td>
+                        <td>{{ customer.address }}</td>
+                        <td>{{ customer.address }}</td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>{{ customer.city }}</td>
+                        <td>{{ customer.city }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p>___________________________________________________________________________________________________________</p>
+        <div class="details-section">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Sl. No</th>
+                        <th>Product</th>
+                        <th>Unit Price</th>
+                        <th>Discount</th>
+                        <th>Qty</th>
+                        <th>Net Amount</th>
+                        <th>Tax Rate</th>
+                        <th>Tax Type</th>
+                        <th>Tax Amount</th>
+                        <th>Total Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice_details %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.product_name }}</td>
+                        <td>{{ item.selling_price }}</td>
+                        <td>{{ item.discount|default:"0" }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.net_amount }}</td>
+                        <td>{{ item.tax_rate|default:"0" }}</td>
+                        <td>{{ item.tax_type|default:"0" }}</td>
+                        <td>{{ item.tax_amount|default:"0" }}</td>
+                        <td>{{ item.net_amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="8">Total:</td>
+                        <td id="totalTaxAmount">Rs.0.00</td>
+                        <td id="totalAmount">Rs.0.00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="details-section">
+            <p>Total Amount in Words: <strong id="totalInWords"></strong></p>
+        </div>
+        <p>___________________________________________________________________________________________________________</p>
+        <div class="terms">
+            <p><strong>Terms and Conditions:</strong></p>
+            <ul>
+                <li>Payment must be made within 30 days of invoice date.</li>
+                <li>Returns accepted within 14 days of delivery.</li>
+                <li>We are not responsible for damages incurred during shipping.</li>
+            </ul>
+        </div>
+        <p>___________________________________________________________________________________________________________</p>
+        <div class="details-section">
+            <p class="small-font"><strong>Authorized Signature:</strong></p>
+            <p class="small-font">Date: {{ invoice.invoice_date }}</p>
+        </div>
+    </div>
+</body>
+</html>

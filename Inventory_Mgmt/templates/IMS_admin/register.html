@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: 
+                url('https://i.pinimg.com/originals/5c/87/b3/5c87b3c0466f830a480ba2214af2c73d.png') no-repeat left center fixed, 
+                url('https://images.ctfassets.net/wowgx05xsdrr/6S5n1hbJkaLgrEVD68TzRZ/d8e750a0f6363cb89f55c39487304ce1/small-business-shipping-tips-hero-img-02.png?fm=webp&w=3840&q=75') no-repeat right center fixed;
+            background-size: 50% 100%, 50% 100%;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 50px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .btn-custom {
+            width: 80%;
+            border-radius: 10px; 
+            background-color: #1f8bff;
+            color: rgb(0, 0, 0);
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 5px;
+            width: 90%; /* Adjusted width */
+        }
+        .form-group {
+            margin-bottom: 1rem;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .form-row {
+            margin-left: 0;
+            margin-right: 0;
+        }
+        .form-row .form-group {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .right-column textarea {
+            resize: none; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <h2 class="header">Registration Form</h2>
+        {% if messages %}
+        <div class="alert alert-info">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form action="{% url 'register' %}" method="post">
+        {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group col-md-6 left-column">
+                    <label for="name">Company Name:</label>
+                    <input type="text" class="form-control" id="name" placeholder="Enter name" name="name" maxlength="50" required>
+                </div>
+                <div class="form-group col-md-6 left-column">
+                    <label for="gst_no">GST Number:</label>
+                    <input type="text" class="form-control" id="gst_no" placeholder="Enter GST number" name="gst_no" maxlength="25" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 left-column">
+                    <label for="email">Company Email:</label>
+                    <input type="email" class="form-control" id="email" placeholder="Enter email" name="email" required>
+                </div>
+                
+                <div class="form-group col-md-6 left-column">
+                    <label for="pan_no">PAN Number:</label>
+                    <input type="text" class="form-control" id="pan_no" placeholder="Enter PAN number" name="pan_no" maxlength="10" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 left-column">
+                    <label for="phone_number">Phone Number:</label>
+                    <input type="number" class="form-control" id="phone_number" placeholder="Enter phone number" name="phone_number" required>
+                </div>
+                <div class="form-group col-md-6 right-column">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter password" name="password" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 right-column">
+                    <label for="pincode">Pincode:</label>
+                    <input type="number" class="form-control" id="pincode" placeholder="Enter pincode" name="pincode" required>
+                </div>
+                <div class="form-group col-md-6 right-column">
+                    <label for="confirm_password">Re-enter Password:</label>
+                    <input type="password" class="form-control" id="re_password" placeholder="Re-enter password" name="re_password" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6 right-column">
+                    <label for="address">Address:</label>
+                    <textarea class="form-control" id="address" placeholder="Enter address" name="address" required></textarea>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-custom btn-lg">Register</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

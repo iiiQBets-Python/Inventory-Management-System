@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>New Post</title>
+    <script src="https://cdn.ckeditor.com/4.14.1/standard/ckeditor.js"></script>
+</head>
+<body>
+    <h1>New Post</h1>
+    <form method="post" >
+        {% csrf_token %}
+        <p>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+        </p>
+        <p>
+            <label for="content">Content:</label>
+            <textarea id="content" name="content"></textarea>
+        </p>
+        <button type="submit">Save</button>
+    </form>
+    <script>
+        CKEDITOR.replace('content');
+    </script>
+</body>
+</html>
+
+
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} IMS - Dashboard {% endblock %}
+{% block styles %}
+<style>
+    .dashboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+    .card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+    .card.total {
+        background-color: #4caf50;
+        color: white;
+    }
+    .card.today {
+        background-color: #2196f3;
+        color: white;
+    }
+    .card h4 {
+        margin: 0 0 10px 0;
+        font-size: 1.2em;
+    }
+    .card p {
+        font-size: 2em;
+        margin: 0;
+    }
+    .bottom-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h3>Welcome to IMS Dashboard</h3>
+<div class="dashboard">
+    <div class="card total">
+        <h4>Total Sales</h4>
+        <p>1,234</p>
+    </div>
+    <div class="card total">
+        <h4>Total Revenue</h4>
+        <p>$56,789</p>
+    </div>
+    <div class="card total">
+        <h4>Total Stock Available</h4>
+        <p>5,678</p>
+    </div>
+</div>
+<div class="bottom-cards">
+    <div class="card today">
+        <h4>Today's Sales</h4>
+        <p>123</p>
+    </div>
+    <div class="card today">
+        <h4>Today's Revenue</h4>
+        <p>$4,567</p>
+    </div>
+</div>
+{% endblock content %}

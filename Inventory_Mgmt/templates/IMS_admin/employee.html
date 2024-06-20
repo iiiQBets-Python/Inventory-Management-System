@@ -1,0 +1,427 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Add Employee {% endblock %}
+{% block styles %}
+
+  <style>
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .form-control {
+      border-radius: 5px;
+      height: 40px; 
+      border: 1px solid #dfcdcd; 
+      background-color: #ffffff;
+      transition: border-color 0.2s ease-in-out; 
+    }
+  
+    .form-control:hover {
+      border-color: #4e7454;
+    }
+    .form-control:focus {
+      background-color: #f2f2f2; 
+      border-color: #4e7454; 
+    }
+
+    /* .container {
+      margin: 100px auto 30px; 
+      width:83%;
+      left: 300px;
+      padding-top: 50px;
+      margin-bottom: 30px;
+      border: 2px solid #fffefe;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+      background-color: #e3e3e3;
+    } */
+    .container {
+    margin-top: 100px; 
+    width: 80%;
+    left: 200px;
+    border: 2px solid #fffefe;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+    background-color: #ffffff;
+  }
+    .custom-header {
+      text-align: center;
+      color: #264f36;
+      margin-bottom: 30px;
+    }
+
+    select {
+      width: 100%;
+      height: 40px; 
+    }
+
+    .custom-file-label {
+      border: 2px solid #ced4da; 
+      border-radius: 5px; 
+      padding: 8px 12px; 
+      cursor: pointer; 
+    }
+
+    .custom-file-label:hover {
+      background-color: #c6d8ea; 
+    }
+
+    .section-title {
+      font-size: 1.2em;
+      color: #000000; 
+      background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+      padding-bottom: 10px; 
+      padding-top: 1.5%;
+      margin-bottom: 20px; 
+      box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+      padding-left: 12%;
+    }
+
+    .image-container {
+      text-align: center;
+      padding-top: 2%;
+    }
+
+    .drag-drop-area {
+      height: 130px;
+      border: 2px dashed #ccc;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .upload-label {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .buttons {
+      margin-left: -15px;
+    }
+
+  </style>
+{% endblock %}
+{% block content %}
+</head>
+<body>
+  <div class="container">
+    <h3 class="custom-header">Employee Registration</h3>
+    <form id="employeeForm" method="POST" action="{% url 'add_employee' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="department_name" name="department_name">Department</label>
+        
+        <button class="btn btn-outline-primary btn-sm small-button" type="button" id="button-addon2">
+          <i class="fas fa-plus"></i>
+        </button>
+        <div class="emp_dep-input dropdown-icon">
+          <select class="form-control" id="department_name" name="department_name" onchange="enableForm()">
+            {% for department in departments %}
+        <option value="{{ department.name }}">{{ department.name }}</option>
+    {% endfor %}
+  </select>
+        </div>
+      </div>
+
+      <!-- Employee Information Section -->
+        <div id="employeeInfoSection" style="display: none;">
+            <div class="row">
+                <!-- Column 1: Personal Information -->
+                <div class="col-md-4">
+                    <h4 class="section-title">Personal Information</h4>
+                    <div class="form-row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <select class="form-control" id="title" name="title" required>
+                                    <option value="">Title</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Ms">Ms</option>
+                                    <option value="Mrs">Mrs</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select class="form-control" id="gender" name="gender" required>
+                                    <option value="">Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date_of_birth">Date of Birth</label>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                    </div>
+                </div>
+                <!-- Column 2: Contact Information -->
+                <div class="col-md-4">
+                    <h4 class="section-title">Contact Information</h4>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="5"  style="resize: none;" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone_num">Phone Number</label>
+                        <input type="tel" class="form-control" id="phone_num" name="phone_num" required>
+                    </div>
+                </div>
+                <!-- Column 3: Employment Information -->
+                <div class="col-md-4">
+                    <h4 class="section-title">Employment Information</h4>
+                    <div class="form-group">
+                        <label for="designation">Designation</label>
+                        <input type="text" class="form-control" id="designation" name="designation" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="date_of_join">Date of Joining</label>
+                        <input type="date" class="form-control" id="date_of_join" name="date_of_join" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="image">Images</label>
+                      <div id="dragDropArea" class="drag-drop-area">
+                          <p>Drag & Drop or <label for="emp_imageInput" class="upload-label"> <i class="fas fa-image"></i>Browse</label> to upload an Image</p>
+                          <p id="fileName" style="display: none;"></p>
+                      </div>
+                      <input type="file" id="emp_imageInput" name="image" style="display: none;" accept="image/*" onchange="handleFileSelect(this.files)" multiple="false">
+                      <ul id="fileList" class="file-list"></ul> 
+                  </div>
+                </div>
+            </div>
+            <div class="col-md-12 mt-4">
+                <div class="buttons">
+                    <button type="submit" class="btn btn-sm btn-outline-primary  mr-2">Submit</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearForm()">Clear</button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-labelledby="addDepartmentModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addDepartmentModalLabel">Manage Department</h5>
+            <span class="close" aria-label="Close" data-dismiss="modal">&times;</span>
+
+          </div>
+          <div class="modal-body">
+            <form id="addDepartmentForm">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="new_department_name">Department ID</label>
+                <input type="text" class="form-control" id="new_department_id" name="new_department_id" required>
+                <label for="new_department_name">Department Name</label>
+                <input type="text" class="form-control" id="new_department_name" name="new_department_name" required>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-primary " onclick="saveAndSelectDepartment()">Save and Select</button>
+            <button type="button" class="btn btn-outline-danger " data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <!-- Select2 JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+  <script>
+    // Function to enable form fields upon selecting a department
+    function enableForm() {
+      console.log("enableForm() called");
+      var department = document.getElementById("department_name").value;
+      if (department) {
+        document.getElementById("employeeInfoSection").style.display = "block";
+      } else {
+        document.getElementById("employeeInfoSection").style.display = "none";
+      }
+    }
+  
+    // Function to clear the form
+    function clearForm() {
+      console.log("clearForm() called");
+      document.getElementById("department_name").value = "";
+      document.getElementById("first_name").value = "";
+      document.getElementById("last_name").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("address").value = "";
+      document.getElementById("phone_num").value = "";
+      document.getElementById("designation").value = "";
+      document.getElementById("date_of_join").value = "";
+      document.getElementById("employeeInfoSection").style.display = "none";
+    }
+  
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log("DOMContentLoaded");
+      const dragDropArea = document.getElementById('dragDropArea');
+  
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dragDropArea.addEventListener(eventName, preventDefaults, false);
+      });
+  
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dragDropArea.addEventListener(eventName, highlight, false);
+      });
+  
+      ['dragleave', 'drop'].forEach(eventName => {
+        dragDropArea.addEventListener(eventName, unhighlight, false);
+      });
+  
+      dragDropArea.addEventListener('drop', handleDrop, false);
+    });
+  
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  
+    function highlight() {
+      this.classList.add('dragover');
+    }
+  
+    function unhighlight() {
+      this.classList.remove('dragover');
+    }
+  
+    function handleDrop(e) {
+      const fileList = e.dataTransfer.files;
+      handleImageChange(fileList);
+    }
+  
+    function handleImageChange(files) {
+      console.log("handleImageChange() called");
+      const file = files[0]; // Only consider the first file
+      const fileList = document.getElementById('fileList');
+  
+      if (file) {
+        const listItem = document.createElement("li");
+  
+        // Create a span element for the image icon
+        const imageIcon = document.createElement("i");
+        imageIcon.className = "fas fa-image mr-2"; // Add necessary classes for the icon
+  
+        // Create a text node with the file name
+        const fileNameNode = document.createTextNode(file.name);
+  
+        // Append icon and file name to the list item
+        listItem.appendChild(imageIcon);
+        listItem.appendChild(fileNameNode);
+  
+        // Click event to open the image in a new tab when the list item is clicked
+        listItem.addEventListener('click', function() {
+          window.open(URL.createObjectURL(file), '_blank'); // Open image in a new tab
+        });
+  
+        // Create a button to remove the image from the list
+        const cancelBtn = document.createElement("span");
+        cancelBtn.innerHTML = "<i class='fas fa-times-circle' style='color: red;'></i>";
+        cancelBtn.className = "cancel-btn";
+        cancelBtn.onclick = function() {
+          fileList.removeChild(listItem); // Remove the list item when cancel button is clicked
+        };
+  
+        // Append cancel button to the list item
+        listItem.appendChild(cancelBtn);
+  
+        // Append the list item to the file list
+        fileList.appendChild(listItem);
+      }
+    }
+  
+    function handleFileSelect(files) {
+      console.log("handleFileSelect() called");
+      handleImageChange(files);
+    }
+  
+    function saveAndSelectDepartment() {
+      console.log("saveAndSelectDepartment() called");
+      var formData = $("#addDepartmentForm").serialize(); 
+      $.ajax({
+        type: "POST",
+        url: "{% url 'add_department' %}", 
+        data: formData, // Form data
+        success: function(response) {
+          console.log("Department registration successful");
+          var newDepartmentId = response.department_id;
+          var newDepartmentName = response.department_name;
+          var selectElement = document.getElementById("department_name");
+          var option = document.createElement("option");
+          option.text = newDepartmentName;
+          option.value = newDepartmentId;
+          selectElement.add(option);
+          $('#addDepartmentModal').modal('hide');
+          document.getElementById("new_department_id").value = "";
+          document.getElementById("new_department_name").value = ""; 
+          window.location.href = "{% url 'add_employee' %}";
+        },
+        error: function(xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText); 
+        }
+      });
+    }
+  
+    document.getElementById('button-addon2').addEventListener('click', function() {
+      console.log("Button clicked");
+      $('#addDepartmentModal').modal('show');
+    });
+  
+    $(document).ready(function() {
+      console.log("Document ready");
+      // Function to handle form submission
+      $('#employeeForm').submit(function(e) {
+        console.log("Form submitted");
+        e.preventDefault(); // Prevent default form submission
+        var formData = $(this).serialize(); // Serialize form data
+  
+        // AJAX request to submit form data
+        $.ajax({
+          type: 'POST',
+          url: $(this).attr('action'), // URL to which the form data will be sent
+          data: formData, // Form data
+          success: function(response) {
+            console.log("Employee registration successful!");
+            // Display success message
+            alert('Employee registration successful!');
+            // Optionally, you can reset the form here
+            window.location.href = "{% url 'employees' %}";
+          },
+          error: function(xhr, errmsg, err) {
+            console.log(xhr.status + ': ' + xhr.responseText); // Log any errors
+          }
+        });
+        return false;
+      });
+    });
+  </script>
+  
+{% endblock %}

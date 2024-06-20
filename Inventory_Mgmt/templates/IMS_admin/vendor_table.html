@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Table</title>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<!-- DataTables CSS -->
+<link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<!-- DataTables Buttons CSS -->
+<link href="https://cdn.datatables.net/buttons/2.3.0/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.table-container {
+    width: 80%;
+    border: 1px solid #ffffff;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #eff5f7;
+    margin: 15px auto;
+    box-shadow: #000;
+    font-size: smaller;
+    position: relative; /* Added for positioning the buttons */
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-container th,
+.table-container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-container th {
+    background-image: linear-gradient(to bottom, #087efd, #0b7af9);
+    color: #ffffff; /* Header text color */
+    font-size: small;
+}
+
+.table-container th:hover {
+    background-color: #529ff1; /* Header hover color */
+    cursor: pointer;
+}
+
+.table-container tr:nth-child(even) {
+    background-color: #fffbfb;
+}
+
+.table-container tbody tr:hover {
+    background-color: #b2d8fd; /* Hover background color */
+    cursor: pointer;
+}
+
+.table-container th,
+.table-container td {
+    border-radius: 5px; /* Adding border-radius to table cells */
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.edit-button,
+.delete-button {
+    background-color: transparent;
+    padding: 8px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-button i,
+.delete-button i {
+    margin-right: 4px;
+}
+
+.edit-button:hover {
+    color: #529ff1;
+}
+
+.delete-button:hover {
+    color: #f46170;
+}
+
+.pagination {
+    margin-top: 8px;
+    float: right;
+}
+
+.pagination a {
+    color: black;
+    float: left; /* Align pagination links to the right */
+    padding: 4px 18px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border: 1px solid #ddd; /* Add border */
+    margin-right: 5px;
+    font-size: smaller;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}
+
+.search-input {
+    width: 100%; /* Full width */
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    margin-bottom: 10px; /* Add margin bottom */
+}
+
+.search-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dataTables_info {
+    font-size: smaller;
+}
+
+.edit-button,
+.delete-button {
+    padding: 4px;
+    font-size: smaller;
+}
+
+.edit-button i,
+.delete-button i {
+    font-size: smaller;
+}
+.background-color {
+    background-color: rgb(15, 112, 208);
+    color: white; 
+}
+
+.button-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.btn-sm {
+    color: #ccc;
+    font-size: 8px;
+    border-radius: 50%;
+    background-color: #007bff;
+}
+
+.btn-sm:hover {
+    color: #000;
+    background-color: #18fd08;
+}
+
+.table{
+    margin-top: 20px;
+}
+.dataTables_wrapper{
+    margin-top: 50px;
+}
+.dataTables_filter {
+  border-radius: 5px; 
+  transition: 0.3s ease-in-out;
+}
+
+.dataTables_filter:hover {
+    transform: width(1.15);
+} 
+</style>
+</head>
+<body>
+
+<!-- Modal -->
+<div class="modal fade" id="addModal1" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header background-color">
+                <h5 class="modal-title" id="addModalLabel">Additional Fields</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>            
+            <div class="modal-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Full Name:</td>
+                            <td>Subhash Netha</td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td>subhash@gmail.com</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile No:</td>
+                            <td>8999008909</td>
+                        </tr>
+                        <tr>
+                            <td>GST No:</td>
+                            <td>07DDIPA9391G1ZC</td>
+                        </tr>
+                        <tr>
+                            <td>Address:</td>
+                            <td>7-6-67, Bhavani Nagar</td>
+                        </tr>
+                        <tr>
+                            <td>City:</td>
+                            <td>Vemulawada</td>
+                        </tr>
+                        <tr>
+                            <td>State:</td>
+                            <td>Telangana</td>
+                        </tr>
+                        <tr>
+                            <td>PIN Code:</td>
+                            <td>505302</td>
+                        </tr>
+                        <tr>
+                            <td>Bank Name:</td>
+                            <td>Axis Bank</td>
+                        </tr>
+                        <tr>
+                            <td>Branch Name:</td>
+                            <td>Vemulawada Branch</td>
+                        </tr>
+                        <tr>
+                            <td>Account No:</td>
+                            <td>1234567890</td>
+                        </tr>
+                        <tr>
+                            <td>IFSC Code:</td>
+                            <td>ABCDEF12345</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal2" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header background-color">
+                <h5 class="modal-title" id="addModalLabel">Additional Fields</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>            
+            <div class="modal-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Full Name:</td>
+                            <td>Darshan Urs</td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td>darshan@gmail.com</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile No:</td>
+                            <td>9874563221</td>
+                        </tr>
+                        <tr>
+                            <td>GST No:</td>
+                            <td>07DDIPA9391G1ZC</td>
+                        </tr>
+                        <tr>
+                            <td>Address:</td>
+                            <td>7-6/97,Gandhi nagar</td>
+                        </tr>
+                        <tr>
+                            <td>City:</td>
+                            <td>Banglore</td>
+                        </tr>
+                        <tr>
+                            <td>State:</td>
+                            <td>Karnataka</td>
+                        </tr>
+                        <tr>
+                            <td>PIN Code:</td>
+                            <td>505098</td>
+                        </tr>
+                        <tr>
+                            <td>Bank Name:</td>
+                            <td>HDFC Bank</td>
+                        </tr>
+                        <tr>
+                            <td>Branch Name:</td>
+                            <td>Gandhi nagar Branch</td>
+                        </tr>
+                        <tr>
+                            <td>Account No:</td>
+                            <td>1234567890</td>
+                        </tr>
+                        <tr>
+                            <td>IFSC Code:</td>
+                            <td>ABCDEF12345</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal3" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header background-color">
+                <h5 class="modal-title" id="addModalLabel">Additional Fields</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>            
+            <div class="modal-body">
+                <table class="table">
+                    <tbody>
+                        <tr>
+                            <td>Full Name:</td>
+                            <td>Prasanna Kumar</td>
+                        </tr>
+                        <tr>
+                            <td>Email:</td>
+                            <td>Prasannakumar@gmail.com</td>
+                        </tr>
+                        <tr>
+                            <td>Mobile No:</td>
+                            <td>8999008909</td>
+                        </tr>
+                        <tr>
+                            <td>GST No:</td>
+                            <td>07DDIPA9391G1ZC</td>
+                        </tr>
+                        <tr>
+                            <td>Address:</td>
+                            <td>5-7/67,Jp Colony</td>
+                        </tr>
+                        <tr>
+                            <td>City:</td>
+                            <td>Banglore</td>
+                        </tr>
+                        <tr>
+                            <td>State:</td>
+                            <td>Karnataka</td>
+                        </tr>
+                        <tr>
+                            <td>PIN Code:</td>
+                            <td>505092</td>
+                        </tr>
+                        <tr>
+                            <td>Bank Name:</td>
+                            <td>ICICI Bank</td>
+                        </tr>
+                        <tr>
+                            <td>Branch Name:</td>
+                            <td>Jp nagar Branch</td>
+                        </tr>
+                        <tr>
+                            <td>Account No:</td>
+                            <td>1234567890</td>
+                        </tr>
+                        <tr>
+                            <td>IFSC Code:</td>
+                            <td>ABCDEF12345</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-container">        
+    <table class="table table-striped" id="myTable">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Company Name</th>
+                <th>Contact Person</th>
+                <th>Email</th>
+                <th>Mobile No</th>
+                <th>Bank Name</th>
+                <th>GST</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Sample Data (Replace with actual data from backend) -->
+            <tr>
+                <td>
+                    <button class="btn btn-sm  " data-bs-toggle="modal" data-bs-target="#addModal1"><i class="fas fa-plus"></i></button>
+                </td>
+                <td>ABC Company</td>
+                <td>Subhash</td>
+                <td>subhash@gmail.com</td>
+                <td>8999008909</td>
+                <td>Axis Bank</td>
+                <td>07DDIPA9391G1ZC</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit-button" onclick="editRow(1)"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-button" onclick="deleteRow(1)"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-sm  " data-bs-toggle="modal" data-bs-target="#addModal2"><i class="fas fa-plus"></i></button>
+                </td>
+                <td>XYZ Company</td>
+                <td>Darshan</td>
+                <td>darshan@gmail.com</td>
+                <td>9874563221</td>
+                <td>HDFC Bank</td>
+                <td>07DDIPA9391G1ZC</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit-button" onclick="editRow(1)"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-button" onclick="deleteRow(1)"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <button class="btn btn-sm  " data-bs-toggle="modal" data-bs-target="#addModal3"><i class="fas fa-plus"></i></button>
+                </td>
+                <td>ABCD Company</td>
+                <td>Prasanna</td>
+                <td>prasanna@gmail.com</td>
+                <td>9877565464</td>
+                <td>ICICI Bank</td>
+                <td>07DDIPA9391G1ZC</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="edit-button" onclick="editRow(1)"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="delete-button" onclick="deleteRow(1)"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+            <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+    </table>
+    <div class="button-container">
+        <!-- Buttons for CSV, Print, PDF, and Copy -->
+        <button class="btn btn-primary" id="csvExportBtn"><i class="fas fa-file-csv"></i></button>
+        <button class="btn btn-primary" id="pdfExportBtn"><i class="fas fa-file-pdf"></i></button>
+        <button class="btn btn-primary" id="copyBtn"><i class="fas fa-copy"></i></button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Font Awesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<!-- DataTables Buttons JS -->
+<script src="https://cdn.datatables.net/buttons/2.3.0/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.72/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.72/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.0/js/buttons.html5.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    var table = $('#myTable').DataTable({
+        searching: true, // Enable searching
+        lengthMenu: [5, 10, 25, 50, 100], // Show entries dropdown options
+        buttons: [
+            'copy', 'csv', 'pdf', 'print'
+        ]
+    });
+
+    $('#csvExportBtn').on('click', function() {
+        table.buttons('.buttons-csv').trigger();
+    });
+
+    $('#pdfExportBtn').on('click', function() {
+        table.buttons('.buttons-pdf').trigger();
+    });
+
+
+    $('#copyBtn').on('click', function() {
+        table.buttons('.buttons-copy').trigger();
+    });
+
+});
+
+</script>
+</body>
+</html>

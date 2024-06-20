@@ -1,0 +1,203 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Products {% endblock %}
+{% block styles %}
+<style> 
+    .table th, .table td {
+        font-size: small;
+        color: #000000;
+        border-color: #000000; 
+    }
+    .table th.description {
+        font-size: small;
+        width: 30%;
+    }
+    .total-amount {
+        font-weight: bold;
+        color: #0f5311;
+    }
+    .card-container {
+    padding: 10px; 
+    display: flex;
+    justify-content: center;
+}
+
+   .card {
+    width: calc(100% - 9%);
+    border: 2px solid #040404cc;
+    border-radius: 10px;
+    padding: 10px;
+    padding-right: 10px; 
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+}
+    .card-header p {
+        margin-bottom: 5px;
+        color: #171e17;
+    }
+    .card-header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.678); 
+    }
+    #totalTaxAmount,
+    #totalAmount {
+        background-color: #6f756f; 
+        color: #fff; 
+        padding: 5px 10px;
+    }
+
+    .card-body {
+        overflow: auto;
+    }
+    .float-right {
+        float: right;
+        padding-right: 20px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="float-right">     
+              <p><small><strong>Order Number:</strong>{{ order.id }}</small></p>
+              <p><small><strong>Sales Person:</strong> {{ order.sales_employee }}1</small></p>
+              <p><small><strong>Order Date:</strong> {{ order.order_date }}</small></p>
+              <p><small><strong>Customer:</strong> {{ order.customer }}</small></p>
+              <p><small><strong>Invoice Date:</strong> 2024-05-14</small></p>
+          </div>
+          
+          </div>
+          <hr>
+          <div class="card-body">
+            <table class="table table-bordered" id="invoiceTable">
+              <thead>
+                <tr style="background-color: #808d80;">
+                  <th>Sl. No</th>
+                  <th class="description">Description</th>
+                  <th>Unit Price</th>
+                  <th>Discount(%)</th>
+                  <th>Qty</th>
+                  <th>Net Amount</th>
+                  <th>Tax Rate(%)</th>
+                  <th>Tax Type</th>
+                  <th>Tax Amount</th>
+                  <th>Total Amount</th> 
+              </tr>              
+              </thead>
+              {% for order_detail in order_details %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td class="description">{{ order_detail.product.product_name }} - {{ order_detail.product.description }}</td>
+                  <td>₹{{ order_detail.unit_price }}</td>
+                  <td>{{ order_detail.discount }}</td>
+                  <td>{{ order_detail.quantity }}</td>
+                  <td>₹{{ order_detail.net_amount }}</td>
+                  <td>{{ order_detail.tax_rate }}</td>
+                  <td>{{ order_detail.tax_type }}</td>
+                  <td>₹{{ order_detail.tax_amount }}</td>
+                  
+                  <td class="net-total">₹{{ order_detail.total_amount }}</td>
+                  {% endfor %}
+                </tr>
+                
+              </tbody>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="8" class="text-right">Total:</td>
+                  <td id="totalTaxAmount">₹0.00</td>
+                  <td id="totalAmount">₹0.00</td>
+                </tr>
+                <tr>
+                  <td colspan="10" class="text-left">
+                    Total Amount in Words: <strong id="totalInWords"></strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="10" class="text-left">
+                    <b>Terms and Conditions:</b>
+                    <ul>
+                      <li>Payment must be made within 30 days of invoice date.</li>
+                      <li>Returns accepted within 14 days of delivery.</li>
+                      <li>We are not responsible for damages incurred during shipping.</li>
+                    </ul>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      calculateTotal();
+
+      function calculateTotal() {
+        var totalAmount = 0;
+        var totalTaxAmount = 0;
+        $('#invoiceTable tbody tr').each(function() {
+          var netTotal = parseFloat($(this).find('.net-total').text().replace('₹', ''));
+          totalAmount += netTotal;
+
+          var taxAmount = parseFloat($(this).find('td:nth-child(9)').text().replace('₹', ''));
+          totalTaxAmount += taxAmount;
+        });
+        $('#totalTaxAmount').text('₹' + totalTaxAmount.toFixed(2));
+        $('#totalAmount').text('₹' + totalAmount.toFixed(2));
+        updateTotalInWords(totalAmount);
+      }
+
+      function updateTotalInWords(amount) {
+        var words = convertToIndianCurrency(Math.floor(amount));
+        $('#totalInWords').text(words.charAt(0).toUpperCase() + words.slice(1) + ' only.');
+    }
+
+       // Function to convert number to Indian currency text format
+       function convertToIndianCurrency(number) {
+            const numberWords = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                                "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tensWords = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            if (number === 0) {
+                return "Zero";
+            }
+
+            if (number < 20) {
+                return numberWords[number];
+            }
+
+            if (number < 100) {
+                return tensWords[Math.floor(number / 10)] + (number % 10 !== 0 ? " " + numberWords[number % 10] : "");
+            }
+
+            if (number < 1000) {
+                return numberWords[Math.floor(number / 100)] + " Hundred" + (number % 100 !== 0 ? " " + convertToIndianCurrency(number % 100) : "");
+            }
+
+            if (number < 100000) {
+                return convertToIndianCurrency(Math.floor(number / 1000)) + " Thousand" + (number % 1000 !== 0 ? " " + convertToIndianCurrency(number % 1000) : "");
+            }
+
+            if (number < 10000000) {
+                return convertToIndianCurrency(Math.floor(number / 100000)) + " Lakh" + (number % 100000 !== 0 ? " " + convertToIndianCurrency(number % 100000) : "");
+            }
+
+            if (number < 1000000000) {
+                return convertToIndianCurrency(Math.floor(number / 10000000)) + " Crore" + (number % 10000000 !== 0 ? " " + convertToIndianCurrency(number % 10000000) : "");
+            }
+
+            return "Number too large";
+        }
+    });
+  </script>
+{% endblock %}

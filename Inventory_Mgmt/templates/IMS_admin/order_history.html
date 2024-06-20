@@ -1,0 +1,34 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Order History Table  {% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'css/IMS_admin/order_history.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Order Details</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Order ID: ORD001</li>
+              <li class="list-group-item">Order Date: 2024-05-10</li>
+              <li class="list-group-item">Product Name: Laptop</li>
+              <li class="list-group-item">Quantity: 1</li>
+              <li class="list-group-item">Price: Rs.80000</li>
+              <li class="list-group-item">Delivered Date: 2024-05-12</li>
+              <li class="list-group-item">Customer Name: Subhash</li>
+              <li class="list-group-item">Mobile No: 9876543210</li>
+              <li class="list-group-item">Delivered Address: 123, bhavani nagar, Vemulawada, 505403</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
