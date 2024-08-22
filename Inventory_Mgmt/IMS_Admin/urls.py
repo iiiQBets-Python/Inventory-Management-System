@@ -2,9 +2,10 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('', home , name='home'), 
+    # Existing URLs
+    path('', home, name='home'), 
     path('logout/', log_out, name='logout'),
-    path ('base', base , name='base'), 
+    path('base', base, name='base'), 
     path('login', admin_login, name="admin_login"),
     path('add_product', add_products, name="add_product"),
     path('add_department', add_department, name="add_department"),
@@ -14,16 +15,15 @@ urlpatterns = [
     path('add_products', add_products, name="add_products"),
     path('add_category', add_category, name="add_category"),
     path('add_brand', add_brand, name="add_brand"),
-    path('add_manufacturer', add_manufacturer, name="add_manufacturer"),
+    path('add_suppliers', add_Supplier, name="add_suppliers"),
     path('products', product_table, name="products"),
     path('stockupdate', update_stock, name="stockupdate"),
     path('employees/', employees, name="employees"),
     path('departments', departments, name="departments"),
-    path('manufactures', manufactures, name="manufactures"),
+    path('suppliers/', suppliers, name="suppliers"),
     path('category', category, name="category"),
     path('brands', brands, name="brands"),
-    path('stockupdate', update_stock, name="stockupdate"),
-    path('warehouse', stock_table, name="warehouse"),
+    path('stock', stock_table, name="stock"),
     path('delete_product/<str:product_id>/', delete_product, name='delete_product'),
     path('delete_customer/<str:customer_id>/', delete_customer, name='delete_customer'),
     path('delete_brand/<str:id>/', delete_brand, name='delete_brand'),
@@ -36,7 +36,7 @@ urlpatterns = [
     path('orders', order_table, name="orders"),
     path('order_detail/<int:id>/', order_details, name='order_detail'),
     path('assign_sales_employee/', assign_sales_employee, name='assign_sales_employee'),
-    path('delete_manufacturer/<int:id>/', delete_manufacturer, name='delete_manufacturer'),
+    path('delete_Supplier/<int:id>/', delete_Supplier, name='delete_Supplier'),
     path('delete_order/<int:id>/', delete_order, name="delete_order"),
     path('invoices', invoice_table, name="invoices"),
     path('delete_invoice/<int:id>/', delete_invoice, name="delete_invoice"),
@@ -53,9 +53,22 @@ urlpatterns = [
     path('create_order', createOrder, name="create_order"),
     path('add_customers', add_customer, name="add_customers"),
     path('edit_order/<int:id>/', edit_order, name="edit_order"),
-
     path('register/', register, name='register'),
     path('generate_invoice_pdf/<str:id>/', generate_invoice_pdf, name='generate_invoice_pdf'),
     path('edit_stock/<str:id>/', edit_stock, name='edit_stock'),
     path('delete_stock/<str:id>/', delete_stock, name="delete_stock"),
+    
+    # New URLs for the remaining submenu items
+    
+    path('create_purchase_order/', create_purchase_order, name="create_purchase_order"),
+    path('purchase_orders/', manage_purchase_orders, name="purchase_orders"),
+    path('warehouse_locations/', manage_warehouse_locations, name="warehouse_locations"),
+    path('warehouse_stock/', manage_warehouse_stock, name="warehouse_stock"),
+    path('low_stock_alerts/', low_stock_alerts, name="low_stock_alerts"),
+    path('accounts_receivable/', accounts_receivable, name="accounts_receivable"),
+    path('manage_accounts_payable/', manage_accounts_payable, name="manage_accounts_payable"),
+    path('purchase_order_detail/<int:id>/', purchase_order_detail, name='purchase_order_detail'),
+    path('edit_purchase_order/<int:id>/', edit_purchase, name='edit_purchase_order'),
+    path('manage_accounts_receivable/', manage_accounts_receviable, name="manage_accounts_receviable"),
+    path('accounts_payable', accounts_payable, name="accounts_payable"),
 ]

@@ -1,7 +1,7 @@
 {% include 'base\base.html' %}
 
 {% load static %}
-{% block title %} Add Manufacturer {% endblock %}
+{% block title %} Add suppliers {% endblock %}
 {% block styles %}
 
   <style>
@@ -102,23 +102,24 @@
 </head>
 <body>
   <div class="container">
-    <h3 class="custom-header">Manufacturer Details</h3>
-    <form method="post" action="{% url 'add_manufacturer' %}">
+    <h3 class="custom-header">Supplier Details</h3>
+    <form method="post" action="{% url 'add_suppliers' %}">
       {% csrf_token %}
       <div class="row">
           <div class="col-md-4">
               <h4 class="section-title">Personal Information</h4>
               <div class="form-group">
-                  <label for="manufacturer_name">Company Name</label>
-                  <input type="text" class="form-control" id="manufacturer_name" name="manufacturer_name" required>
+                  <label for="supplier_name">Company Name</label>
+                  <input type="text" class="form-control" id="supplier_name" name="supplier_name" required>
+
               </div>               
               <div class="form-group">
-                  <label for="manufacturer_email">Email-ID</label>
-                  <input type="email" class="form-control" id="manufacturer_email" name="manufacturer_email" required>
+                  <label for="supplier_email">Email-ID</label>
+                  <input type="email" class="form-control" id="supplier_email" name="supplier_email" required>
               </div>
               <div class="form-group">
-                  <label for="manufacturer_contact">Contact Number</label>
-                  <input type="tel" class="form-control" id="manufacturer_contact" name="manufacturer_contact" required>
+                  <label for="supplier_contact">Contact Number</label>
+                  <input type="tel" class="form-control" id="supplier_contact" name="supplier_contact" required>
               </div>
               <div class="form-group">
                   <label for="gstin_number">GSTIN Number</label>
@@ -129,8 +130,8 @@
                   <input type="text" class="form-control" id="pan_number" name="pan_number" required>
               </div>
               <div class="form-group">
-                  <label for="manufacturer_address">Address</label>
-                  <input type="text" class="form-control" id="manufacturer_address" name="manufacturer_address" style="height: 64px; text-align: top;" required>
+                  <label for="supplier_address">Address</label>
+                  <input type="text" class="form-control" id="supplier_address" name="supplier_address" style="height: 64px; text-align: top;" required>
               </div>                
           </div>
   
@@ -151,32 +152,37 @@
           </div>
   
           <div class="col-md-4">
-              <h4 class="section-title">Business Information</h4>
-              <div class="form-group">
-                  <label for="business_type">Business Type</label>
-                  <select class="form-control" id="business_type" name="business_type" required>
-                      <option value="">Select Business Type</option>
-                      <option value="Private Limited Company">Private Limited Company</option>
-                      <option value="Public Limited Company">Public Limited Company</option>
-                      <option value="Partnership">Partnership</option>
-                      <option value="Sole Proprietorship">Sole Proprietorship</option>
-                      <option value="Limited Liability Partnership (LLP)">Limited Liability Partnership (LLP)</option>
-                  </select>
-              </div>
-              <div class="form-group">
-                  <label for="business_license">Business License Number</label>
-                  <input type="text" class="form-control" id="business_license" name="business_license" required>
-              </div>
-          </div>
-      </div>
-  
-      <div class="col-md-12 mt-4">
-          <div class="buttons">
-              <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
-              <button type="button" class="btn btn-sm btn-danger" onclick="clearForm()">Clear</button>
-          </div>
-      </div>
-  </form>
+            <h4 class="section-title">Business Information</h4>
+            <div class="form-group">
+                <label for="business_type">Business Type</label>
+                <select class="form-control" id="business_type" name="business_type" required>
+                    <option value="">Select Business Type</option>
+                    <option value="Private Limited Company">Private Limited Company</option>
+                    <option value="Public Limited Company">Public Limited Company</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Sole Proprietorship">Sole Proprietorship</option>
+                    <option value="Limited Liability Partnership (LLP)">Limited Liability Partnership (LLP)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="business_license">Business License Number</label>
+                <input type="text" class="form-control" id="business_license" name="business_license" required>
+            </div>
+            <div class="form-group">
+                <label for="is_manufacturer">Is Manufacturer</label>
+                <input type="checkbox" id="is_manufacturer" name="is_manufacturer">
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit and Clear Buttons -->
+    <div class="col-md-12 mt-4">
+        <div class="buttons">
+            <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="clearForm()">Clear</button>
+        </div>
+    </div>
+</form>
   
   </div>
 

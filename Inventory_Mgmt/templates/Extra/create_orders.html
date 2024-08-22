@@ -150,15 +150,15 @@
     }
     
     .table th:nth-child(1), .table td:nth-child(1) { /* Product */
-        width: 15%;
+        width: 12%;
     }
     
     .table th:nth-child(2), .table td:nth-child(2) { /* Product Description */
-        width: 25%;
+        width: 20%;
     }
     
     .table th:nth-child(3), .table td:nth-child(3) { /* Quantity */
-        width: 10%;
+        width: 8%;
     }
     
     .table th:nth-child(4), .table td:nth-child(4) { /* Unit Price */
@@ -166,7 +166,7 @@
     }
     
     .table th:nth-child(5), .table td:nth-child(5) { /* Discount */
-        width: 10%;
+        width: 5%;
     }
     
     .table th:nth-child(6), .table td:nth-child(6) { /* Tax Type */
@@ -174,7 +174,7 @@
     }
     
     .table th:nth-child(7), .table td:nth-child(7) { /* Tax Rate */
-        width: 10%;
+        width: 5%;
     }
     
     .table th:nth-child(8), .table td:nth-child(8) { /* Subtotal */
@@ -221,8 +221,8 @@
                     <select class="form-control" id="customer_id" name="customer_id" required onchange="updateCustomerDetails()">
                         <option value="">Select Customer</option>
                         {% for customer in customers %}
-                        <option value="{{ customer.id }}" data-email="{{ customer.email }}" data-mobile="{{ customer.mobile_no }}" data-address="{{ customer.address }}" data-sales-employee="{{ customer.sales_employee }}" data-sales-employee-id="{{ customer.sales_employee_id }}" data-name="{{ customer.first_name }} {{ customer.last_name }}">
-                            {{ customer.id }}
+                        <option value="{{ customer.customer_id }}" data-email="{{ customer.email }}" data-mobile="{{ customer.mobile_no }}" data-address="{{ customer.address }}" data-sales-employee="{{ customer.sales_employee }}" data-sales-employee-id="{{ customer.sales_employee_id }}" data-name="{{ customer.first_name }} {{ customer.last_name }}">
+                            {{ customer.customer_id }}
                         </option>
                         {% endfor %}
                     </select>
@@ -291,7 +291,7 @@
                             <td><input type="number" class="form-control" name="discount[]" required></td>
                             <td>
                                 <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
-                                    <option value="">Select Tax Type</option>
+                                    <option value="">Select Tax </option>
                                     <option value="GST">GST</option>
                                     <option value="VAT">VAT</option>
                                 </select>

@@ -1,3 +1,4 @@
+from datetime import timezone
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
@@ -30,7 +31,9 @@ class Employee(models.Model):
         self.password = make_password(self.password)
         super(Employee, self).save(*args, **kwargs)
 
-class manufacturer(models.Model):
+
+
+class Supplier(models.Model):
     BUSINESS_TYPES = (
         ('Private Limited Company', 'Private Limited Company'),
         ('Public Limited Company', 'Public Limited Company'),
@@ -39,7 +42,7 @@ class manufacturer(models.Model):
         ('Limited Liability Partnership (LLP)', 'Limited Liability Partnership (LLP)')
     )
 
-    Company_Name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True)
     email = models.EmailField()
     contact_number = models.CharField(max_length=15)
     gstin_number = models.CharField(max_length=15)
@@ -50,9 +53,11 @@ class manufacturer(models.Model):
     bank_name = models.CharField(max_length=100)
     business_type = models.CharField(max_length=50, choices=BUSINESS_TYPES)
     business_license_number = models.CharField(max_length=50)
+    is_manufacturer = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.Company_Name
+        return self.name
+
 
 class Category(models.Model):
     id = models.CharField(max_length=10, unique=True, primary_key=True)
@@ -80,7 +85,7 @@ class Product(models.Model):
     dimension_unit = models.CharField(max_length=10, default="cm")
     cost_price = models.DecimalField(max_digits=10, decimal_places=2)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
-    manufacturer = models.ForeignKey(manufacturer, on_delete=models.CASCADE, to_field="id")
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, to_field="id")
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, to_field="id")
     upc = models.CharField(max_length=255, unique=True)
     ean = models.CharField(max_length=255, unique=True)
@@ -117,11 +122,11 @@ class Customer(models.Model):
             self.sales_employee_id = self.sales_employee.id
         super(Customer, self).save(*args, **kwargs)
 
-class warehouse(models.Model):
-    manufacturer = models.ForeignKey(manufacturer, on_delete=models.CASCADE, to_field='Company_Name')
+class stock(models.Model):
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     upc = models.CharField(max_length=255, null=True, blank=True, verbose_name="UPC (Universal Product Code)")
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, to_field='id')
-    mpn = models.CharField(max_length=255, null=True, blank=True, verbose_name="MPN (Manufacturer Part Number)")
+    mpn = models.CharField(max_length=255, null=True, blank=True, verbose_name="MPN (Supplier Part Number)")
     product_name = models.ForeignKey(Product, on_delete=models.CASCADE)
     ean = models.CharField(max_length=255, null=True, blank=True, verbose_name="EAN (European Article Number)")
     stock_status = models.BooleanField(default=True, verbose_name="Stock Status (In Stock)")
@@ -178,23 +183,23 @@ class OrderDetail(models.Model):
             elif self.tax_type == 'GST':
                 self.tax_rate = 18
 
-        self.adjust_warehouse_stock()
+        self.adjust_stock_stock()
         super(OrderDetail, self).save(*args, **kwargs)
 
-    def adjust_warehouse_stock(self):
-        warehouse_product = warehouse.objects.filter(upc=self.product.upc).first()
+    def adjust_stock_stock(self):
+        stock_product = stock.objects.filter(upc=self.product.upc).first()
         
-        if not warehouse_product:
-            raise ValidationError(f"Product not found in warehouse: {self.product.product_name}")
+        if not stock_product:
+            raise ValidationError(f"Product not found in stock: {self.product.product_name}")
 
         if self.pk:
             previous_instance = OrderDetail.objects.get(pk=self.pk)
             previous_quantity = previous_instance.quantity
-            warehouse_product.stock_number += previous_quantity
+            stock_product.stock_number += previous_quantity
 
-        if warehouse_product.stock_number >= self.quantity:
-            warehouse_product.stock_number -= self.quantity
-            warehouse_product.save()
+        if stock_product.stock_number >= self.quantity:
+            stock_product.stock_number -= self.quantity
+            stock_product.save()
         else:
             raise ValidationError(f"Not enough stock available for product: {self.product.product_name}")
 
@@ -234,5 +239,162 @@ class Company_details(models.Model):
     
     def __str__(self):
         return self.name
+    
+
+    
+class PurchaseOrder(models.Model):
+    PO_STATUS = (
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    )
+
+    id = models.AutoField(primary_key=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
+    order_date = models.DateField(auto_now_add=True)
+    expected_delivery_date = models.DateField()
+    status = models.CharField(max_length=20, choices=PO_STATUS, default='Pending')
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2)
+    notes = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return f"PO-{self.id} - {self.supplier.name}"
 
 
+class PurchaseOrderItem(models.Model):
+    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_price = models.DecimalField(max_digits=15, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.purchase_order.id}"
+    
+
+
+
+class WarehouseLocation(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class WarehouseStock(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    location = models.ForeignKey(WarehouseLocation, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    minimum_stock_level = models.PositiveIntegerField(default=10)
+    last_stocked_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.location.name}"
+
+    def check_low_stock(self):
+        return self.quantity <= self.minimum_stock_level
+
+
+class StockReplenishment(models.Model):
+    warehouse_stock = models.ForeignKey(WarehouseStock, on_delete=models.CASCADE)
+    replenishment_date = models.DateField(auto_now_add=True)
+    quantity_added = models.PositiveIntegerField()
+    handled_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def __str__(self):
+        return f"Replenishment - {self.warehouse_stock.product.product_name}"
+
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils import timezone
+
+class AccountsReceivable(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Paid', 'Paid'),
+        ('Partially Paid', 'Partially Paid'),
+        ('Overdue', 'Overdue'),
+    ]
+
+    PAYMENT_METHOD_CHOICES = [
+        ('Cash', 'Cash'),
+        ('Credit Card', 'Credit Card'),
+        ('Debit Card', 'Debit Card'),
+        ('Online Transfer', 'Online Transfer'),
+        ('Cheque', 'Cheque'),
+    ]
+
+    customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
+    invoice = models.ForeignKey('invoice', on_delete=models.CASCADE)
+    total_amount = models.DecimalField(max_digits=15, decimal_places=2)  # Renamed from amount_due
+    balance_due = models.DecimalField(max_digits=15, decimal_places=2)  # Remaining balance
+    amount_paid = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    due_date = models.DateField()
+    payment_date = models.DateField(null=True, blank=True)
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_METHOD_CHOICES)
+    notes = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+    def save(self, *args, **kwargs):
+        """ Update balance_due and ensure the status is updated based on payment amounts before saving. """
+        if self.amount_paid >= self.total_amount:
+            self.status = 'Paid'
+        elif self.amount_paid > 0 and self.amount_paid < self.total_amount:
+            self.status = 'Partially Paid'
+        if self.due_date < timezone.now().date() and self.balance_due > 0:
+            self.status = 'Overdue'
+        
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.invoice.id} - {self.customer}"
+    
+
+class AccountsPayable(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Paid', 'Paid'),
+        ('Partially Paid', 'Partially Paid'),   
+        ('Overdue', 'Overdue'),
+    ]
+
+    supplier = models.ForeignKey('Supplier', on_delete=models.CASCADE)
+    purchase_order = models.ForeignKey('PurchaseOrder', on_delete=models.CASCADE)
+    total_payable_amount = models.DecimalField(max_digits=15, decimal_places=2)
+    balance_due = models.DecimalField(max_digits=15, decimal_places=2)
+    amount_paid = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)
+    due_date = models.DateField()
+    payment_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
+class Meta:
+    indexes = [
+        models.Index(fields=['status']),
+        models.Index(fields=['due_date']),
+    ]
+
+def _str_(self):
+    return f"Payable: {self.purchase_order.id} - {self.supplier.name}"
+
+@property
+def balance_due(self):
+    return self.amount_due - self.amount_paid
+
+def clean(self):
+    if self.amount_paid > self.amount_due:
+        raise ValidationError('Amount paid cannot exceed the amount due.')
+
+def save(self, *args, **kwargs):
+    # Automatically update status based on amounts and due date
+    if self.amount_paid >= self.amount_due:
+        self.status = 'Paid'
+        if not self.payment_date:
+            self.payment_date = timezone.now().date()
+    elif self.amount_paid > 0:
+        self.status = 'Partially Paid'
+    elif self.due_date < timezone.now().date() and self.status == 'Pending':
+        self.status = 'Overdue'
+
+    super().save(*args, **kwargs)

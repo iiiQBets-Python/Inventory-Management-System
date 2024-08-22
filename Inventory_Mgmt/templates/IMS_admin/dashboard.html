@@ -1,127 +1,407 @@
 {% include 'base/base.html' %}
 
 {% load static %}
-{% block title %} IMS - Dashboard {% endblock %}
+{% block title %} Inventory Management Dashboard {% endblock %}
 {% block styles %}
 <style>
+    .dashboard{
+        margin-left: 240px;
+        margin-right: 20px;
+    }
+
+    .card-text-submenu{
+        font-size:12px;
+    }
+
+    h6{
+        font-weight: bold;
+    }
     
-    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@600&display=swap');
-
-    .dashboard {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px; 
-        padding: 30px;
-        margin-left: 200px;
-
-    }
-    .card {
-        background-color: #fff;
-        border-radius: 6px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        transition: transform 0.2s;
-        max-width: 380px; 
-        width: 100%; 
-    }
-    .card:hover {
-        transform: translateY(-3px);
-    }
-    .card-header {
-        font-family: 'Open Sans', Arial, sans-serif;
-        color: rgb(0, 0, 0);
-        height: 40px; 
-        align-items: center;
-    }
-    .card-body {
-        padding: 20px; 
-        text-align: center
-    }
-    .card.total .card-header {
-        background-color: #64c667;
-    }
-    .card.today .card-header {
-        background-color: #6ab4f0;
-    }
-    .card-header h4 {
-        font-size: 1.1em; 
-    }
-    .card-body p {
-        font-size: 1.8em; 
-    }
-    .bottom-cards {
-        margin-left: 200px;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px; 
-        padding: 30px;
-    }
 </style>
 {% endblock %}
+
 {% block content %}
-<h3>Welcome to IMS Dashboard</h3>
 <div class="dashboard">
-    <div class="card total">
-        <div class="card-header">
-            <h4>Total Sales</h4>
+    <h2 class="mb-4">Inventory Management Dashboard</h2>
+    
+    <!-- Cards Section -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h6 class="card-title">Total Sales</h6>
+                    <p class="card-text">$500,000</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-
-            <p>{{ invoice_count }}</p>
-         </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h6 class="card-title">Total Revenue</h6>
+                    <p class="card-text">$1,200,000</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <h6 class="card-title">Total Expenses</h6>
+                    <p class="card-text">$800,000</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h6 class="card-title">Total Profit</h6>
+                    <p class="card-text">$400,000</p>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card total">
-        <div class="card-header">
-            <h4>Total Revenue</h4>
+
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h6 class="card-title">Stock Overview</h6>
+                    <p class="card-text-submenu">Total: 1,500 | Low: 50 | Out of Stock: 10</p>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-
-            <p>Rs {{ total_revenue }}</p>
-
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-secondary">
+                <div class="card-body">
+                    <h6 class="card-title">Pending Orders</h6>
+                    <p class="card-text">30 Orders</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-dark">
+                <div class="card-body">
+                    <h6 class="card-title">Accounts Receivable</h6>
+                    <p class="card-text">$250,000</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-white bg-light">
+                <div class="card-body">
+                    <h6 class="card-title text-dark">Accounts Payable</h6>
+                    <p class="card-text text-dark">$180,000</p>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="card total">
-        <div class="card-header">
-            <h4>Total Stock Available</h4>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Sales Over Time (Line Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Sales Over Time</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateLineChart('daily')">Daily</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateLineChart('weekly')">Weekly</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateLineChart('monthly')">Monthly</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateLineChart('yearly')">Yearly</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="salesLineChart" height="150"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <p>800</p>
+
+        <!-- Revenue vs Expenses (Bar Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Revenue vs. Expenses</span>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateBarChart('monthly')">Monthly</button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="updateBarChart('yearly')">Yearly</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="revenueBarChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Product Sales Distribution (Doughnut Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Product Sales Distribution</div>
+                <div class="card-body">
+                    <canvas id="salesDoughnutChart" height="320"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Levels (Bar Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Stock Levels</div>
+                <div class="card-body">
+                    <canvas id="stockBarChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Selling Products (Bar Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Top Selling Products</div>
+                <div class="card-body">
+                    <canvas id="topProductsBarChart" height="150"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Receivable vs. Accounts Payable (Pie Chart) -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">Accounts Receivable vs. Accounts Payable</div>
+                <div class="card-body">
+                    <canvas id="accountsPieChart" height="320"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div class="bottom-cards">
-    <div class="card today">
-        <div class="card-header">
-            <h4>Today's Sales</h4>
-        </div>
-        <div class="card-body">
 
-            <p>{{ today_sales }}</p>
+<!-- JavaScript to handle charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Sample Data
+    const salesData = {
+        daily: { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], data: [50, 60, 70, 50, 80, 100, 110] },
+        weekly: { labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'], data: [400, 450, 370, 500] },
+        monthly: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], data: [1200, 1300, 1400, 1500, 1300, 1200, 1600, 1900, 2000, 2100, 2200, 2300] },
+        yearly: { labels: ['2019', '2020', '2021', '2022', '2023'], data: [15000, 16000, 13000, 15000, 19000] }
+    };
 
-        </div>
-    </div>
-    <div class="card today">
-        <div class="card-header">
-            <h4>Today's Revenue</h4>
-        </div>
-        <div class="card-body">
+    const revenueData = {
+        monthly: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], revenue: [1200, 1300, 1400, 1500, 1300, 1200, 1600, 1900, 2000, 2100, 2200, 2300], expenses: [800, 850, 870, 900, 850, 800, 1000, 1100, 1200, 1300, 1400, 1500] },
+        yearly: { labels: ['2019', '2020', '2021', '2022', '2023'], revenue: [15000, 16000, 17000, 18000, 19000], expenses: [10000, 11000, 12000, 13000, 14000] }
+    };
 
-            <p>{{ todays_revenue }}</p>
+    const productSalesData = { labels: ['SmartPhones', 'Watches', 'T-Shirts', 'Backpacks', 'Television'], data: [300, 250, 200, 150, 100] };
 
+    const stockLevelsData = { labels: ['SmartPhones', 'Watches', 'T-Shirts', 'Backpacks', 'Television'], data: [200, 150, 100, 120, 50] };
 
+    const accountsData = { labels: ['Accounts Receivable', 'Accounts Payable'], receivable: 250000, payable: 180000 };
 
-        </div>
-    </div>
-    <div class="card today">
-        <div class="card-header">
-            <h4>ABCD</h4>
-        </div>
-        <div class="card-body">
-            <p>abcd</p>
-        </div>
-    </div>
-</div>
+    // Initialize Sales Over Time (Line Chart)
+    const ctxSalesLine = document.getElementById('salesLineChart').getContext('2d');
+    let salesLineChart = new Chart(ctxSalesLine, {
+        type: 'line',
+        data: {
+            labels: salesData.daily.labels,
+            datasets: [{
+                label: 'Sales',
+                data: salesData.daily.data,
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 2)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
 
+    // Initialize Revenue vs. Expenses (Bar Chart)
+    const ctxRevenueBar = document.getElementById('revenueBarChart').getContext('2d');
+    let revenueBarChart = new Chart(ctxRevenueBar, {
+        type: 'bar',
+        data: {
+            labels: revenueData.monthly.labels,
+            datasets: [{
+                label: 'Revenue',
+                data: revenueData.monthly.revenue,
+                backgroundColor: 'rgba(75, 192, 192, 1)',
+                borderColor: 'rgba(75, 192, 192, 2)',
+                borderWidth: 1
+            }, {
+                label: 'Expenses',
+                data: revenueData.monthly.expenses,
+                backgroundColor: 'rgba(255, 99, 132, 1)',
+                borderColor: 'rgba(255, 99, 132, 2)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
+
+    // Initialize Product Sales Distribution (Doughnut Chart)
+    const ctxSalesDoughnut = document.getElementById('salesDoughnutChart').getContext('2d');
+    let salesDoughnutChart = new Chart(ctxSalesDoughnut, {
+        type: 'doughnut',
+        data: {
+            labels: productSalesData.labels,
+            datasets: [{
+                label: 'Product Sales',
+                data: productSalesData.data,
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                borderColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)', 'rgba(255, 206, 86, 2)', 'rgba(75, 192, 192, 2)', 'rgba(153, 102, 255, 2)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
+
+    // Initialize Stock Levels (Bar Chart)
+    const ctxStockBar = document.getElementById('stockBarChart').getContext('2d');
+    let stockBarChart = new Chart(ctxStockBar, {
+        type: 'bar',
+        data: {
+            labels: stockLevelsData.labels,
+            datasets: [{
+                label: 'Stock Levels',
+                data: stockLevelsData.data,
+                //backgroundColor: 'rgba(153, 102, 255, 1)',
+                //borderColor: 'rgba(153, 102, 255, 2)',
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                borderColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)', 'rgba(255, 206, 86, 2)', 'rgba(75, 192, 192, 2)', 'rgba(153, 102, 255, 2)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
+
+    // Initialize Top Selling Products (Bar Chart)
+    const ctxTopProductsBar = document.getElementById('topProductsBarChart').getContext('2d');
+    let topProductsBarChart = new Chart(ctxTopProductsBar, {
+        type: 'bar',
+        data: {
+            labels: productSalesData.labels,
+            datasets: [{
+                label: 'Units Sold',
+                data: productSalesData.data,
+                //backgroundColor: 'rgba(255, 206, 86, 1)',
+                //borderColor: 'rgba(255, 206, 86, 2)',
+                backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                borderColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)', 'rgba(255, 206, 86, 2)', 'rgba(75, 192, 192, 2)', 'rgba(153, 102, 255, 2)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
+
+    // Initialize Accounts Receivable vs. Accounts Payable (Pie Chart)
+    const ctxAccountsPie = document.getElementById('accountsPieChart').getContext('2d');
+    let accountsPieChart = new Chart(ctxAccountsPie, {
+        type: 'pie',
+        data: {
+            labels: accountsData.labels,
+            datasets: [{
+                label: 'Amount',
+                data: [accountsData.receivable, accountsData.payable],
+                backgroundColor: ['rgba(54, 162, 235, 0.6)', 'rgba(255, 99, 132, 1)'],
+                borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 2)'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 2,
+        plugins: {
+            legend: {
+                labels: {
+                    boxWidth: 12, // Adjust the size of the color box
+                    font: {
+                    size: 12 // Adjust the font size for legend labels
+                    }
+                }
+            }
+        }
+      }
+    });
+
+    // Functions to Update Charts
+    function updateLineChart(period) {
+        salesLineChart.data.labels = salesData[period].labels;
+        salesLineChart.data.datasets[0].data = salesData[period].data;
+        salesLineChart.update();
+    }
+
+    function updateBarChart(period) {
+        revenueBarChart.data.labels = revenueData[period].labels;
+        revenueBarChart.data.datasets[0].data = revenueData[period].revenue;
+        revenueBarChart.data.datasets[1].data = revenueData[period].expenses;
+        revenueBarChart.update();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock content %}
-
-

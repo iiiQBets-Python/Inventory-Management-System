@@ -188,6 +188,7 @@ body {
         <div class="row mb-2">
             <div class="col-12">
                 <div class="button-container">
+                    <button class="btn btn-success" id="createorderBtn"><i class="fas fa-plus"></i> Create Order</button>
                     <a></a>
                     <div class="action-buttons">
                         <button class="btn btn-success csv-pdf-copy" id="csvExportBtn"><i class="fas fa-file-csv"></i> CSV</button>
@@ -347,8 +348,8 @@ $(document).ready(function() {
         table.buttons('.buttons-copy').trigger();
     });
 });
-document.getElementById("addProductBtn").onclick = function () {
-        location.href = "{% url 'add_category' %}";
+document.getElementById("createorderBtn").onclick = function () {
+        location.href = "{% url 'create_order' %}";
     };
     document.getElementById("viewForm{{ order.id }}").addEventListener("submit", function(event) {
     // This will automatically submit the form when you click on the view button

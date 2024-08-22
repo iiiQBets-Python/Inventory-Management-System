@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
+from django.urls import reverse
 from django.views import View
 from .models import *
 from .models import Brand
@@ -36,7 +37,9 @@ def admin_login(request):
             # Check if the user is an Employee
             employee = Employee.objects.get(email=username)
             if check_password(password, employee.password):
-                return render(request, 'base/base.html', {'emp': employee})
+                request.session['userid']=employee.id
+                return redirect('dashboard')
+                # return render(request, 'base/base.html', {'emp': employee})
             else:
                 messages.error(request, 'Invalid password')
                 return redirect('admin_login')
@@ -111,8 +114,7 @@ def add_products(request):
         dimunit = request.POST.get('dimensionUnit')
         costprice = request.POST.get('cost_price')
         sellingprice = request.POST.get('selling_price')
-        manufacturer_name = request.POST.get('manufacturer_name')
-        print(manufacturer_name)
+        supplier_name = request.POST.get('supplier_name')
         brand = request.POST.get('brand_name')
         upc = request.POST.get('upc')
         ean = request.POST.get('ean')
@@ -122,7 +124,7 @@ def add_products(request):
         
         category=Category.objects.get(name=category)
         brand=Brand.objects.get(name=brand)
-        man=manufacturer.objects.get(id=manufacturer_name)
+        man=Supplier.objects.get(id=supplier_name)
         newProduct = Product(
             product_id=productid,
             category=category,
@@ -137,7 +139,7 @@ def add_products(request):
             dimension_unit=dimunit,
             cost_price=costprice,
             selling_price=sellingprice,
-            manufacturer=man,
+            supplier=man,
             brand=brand,
             upc=upc,
             ean=ean,
@@ -150,7 +152,7 @@ def add_products(request):
     else:
         category = Category.objects.all()
         brand = Brand.objects.all()
-        manu = manufacturer.objects.all()
+        manu = Supplier.objects.all()
         context = {
             'manu': manu,
             'category': category,
@@ -280,38 +282,41 @@ def add_brand(request):
         return render(request, 'IMS_Admin/brand_form.html')
 
 
-def add_manufacturer(request):
-    if request.method=="POST":
-        cmp_name=request.POST.get('manufacturer_name')
-        email=request.POST.get('manufacturer_email')
-        contact=request.POST.get('manufacturer_contact')
-        gst=request.POST.get('gstin_number')
-        pan=request.POST.get('pan_number')
-        address=request.POST.get('manufacturer_address')
-        bank_acc=request.POST.get('bank_account_number')
-        ifsc=request.POST.get('ifsc_code')
-        bank_name=request.POST.get('bank_name')
-        business_type=request.POST.get('business_type')
-        business_license=request.POST.get('business_license')
+def add_Supplier(request):
+    if request.method == "POST":
+        name = request.POST.get('supplier_name')
+        email = request.POST.get('supplier_email')
+        contact = request.POST.get('supplier_contact')
+        gst = request.POST.get('gstin_number')
+        pan = request.POST.get('pan_number')
+        address = request.POST.get('supplier_address')
+        bank_acc = request.POST.get('bank_account_number')
+        ifsc = request.POST.get('ifsc_code')
+        bank_name = request.POST.get('bank_name')
+        business_type = request.POST.get('business_type')
+        business_license = request.POST.get('business_license')
+        is_manufacturer = request.POST.get('is_manufacturer') == 'on'
 
-
-        newmanufacturer=manufacturer(
-           Company_Name=cmp_name,
-           email=email,
-           contact_number=contact,
-           gstin_number=gst,
-           pan_number=pan,
-           address=address,
-           bank_account_number=bank_acc,
-           ifsc_code=ifsc,
-           bank_name=bank_name,
-           business_type=business_type,
-           business_license_number=business_license 
+        newSupplier = Supplier(
+            name=name,
+            email=email,
+            contact_number=contact,
+            gstin_number=gst,
+            pan_number=pan,
+            address=address,
+            bank_account_number=bank_acc,
+            ifsc_code=ifsc,
+            bank_name=bank_name,
+            business_type=business_type,
+            business_license_number=business_license,
+            is_manufacturer=is_manufacturer
         )
-        newmanufacturer.save()
-        return redirect('manufactures')
+        newSupplier.save()
+        return redirect('suppliers')
     else:
-        return render(request, 'IMS_Admin/manufacturer.html')
+        return render(request, 'IMS_Admin/Supplier.html')
+
+
 
 
 def product_table(request):
@@ -324,21 +329,29 @@ def product_table(request):
 
 def update_stock(request):
     if request.method == "POST":
-        manufacturer_id = request.POST.get('manufacturer_name')
+        supplier_id = request.POST.get('supplier_id')
         upc = request.POST.get('upc')
-        brand_id = request.POST.get('brand_name')
+        brand_id = request.POST.get('brand_id')
         mpn = request.POST.get('mpn')
-        product_name = request.POST.get('product_name')
+        product_id = request.POST.get('product_name')  # Correcting to get product_id
         stock_status_str = request.POST.get('stock_status')
         stock_status = stock_status_str == 'In Stock'
         stock_num = int(request.POST.get('stock_num'))
         ean = request.POST.get('ean')
-        manufacturer_instance = manufacturer.objects.get(pk=manufacturer_id)
+
+        supplier_instance = Supplier.objects.get(pk=supplier_id)
         brand_instance = Brand.objects.get(pk=brand_id)
-        product_instance = Product.objects.get(product_name=product_name)
+
         try:
-            existing_stock = warehouse.objects.get(
-                manufacturer=manufacturer_instance,
+            product_instance = Product.objects.get(product_id=product_id)  # Fetch by product_id
+        except Product.DoesNotExist:
+            # Handle the error if the product doesn't exist
+            messages.error(request, "Product does not exist.")
+            return redirect('stockupdate')
+
+        try:
+            existing_stock = stock.objects.get(
+                supplier=supplier_instance,
                 upc=upc,
                 brand=brand_instance,
                 mpn=mpn,
@@ -348,9 +361,9 @@ def update_stock(request):
             existing_stock.stock_number += stock_num
             existing_stock.stock_status = stock_status
             existing_stock.save()
-        except warehouse.DoesNotExist:
-            new_stock = warehouse(
-                manufacturer=manufacturer_instance,
+        except stock.DoesNotExist:
+            new_stock = stock(
+                supplier=supplier_instance,
                 upc=upc,
                 brand=brand_instance,
                 mpn=mpn,
@@ -361,21 +374,22 @@ def update_stock(request):
             )
             new_stock.save()
 
-        return redirect('warehouse')
+        return redirect('stock')
     else:
-        manu = manufacturer.objects.all()
-        prod = Product.objects.all()
-        brand = Brand.objects.all()
+        suppliers = Supplier.objects.all()
+        products = Product.objects.all()
+        brands = Brand.objects.all()
         context = {
-            'manufacturer': manu,
-            'products': prod,
-            'brands': brand
+            'suppliers': suppliers,
+            'products': products,
+            'brands': brands
         }
-        return render(request, 'IMS_Admin/stockupdate (1).html', context)      
+        return render(request, 'IMS_Admin/stockupdate.html', context)
+
 
 
 def stock_table(request):
-    stocks=warehouse.objects.all()
+    stocks=stock.objects.all()
     context={
         'stocks':stocks
     }
@@ -400,12 +414,12 @@ def departments(request):
     return render(request, 'IMS_Admin/department_table.html', context)
 
 
-def manufactures(request):
-    manufactures=manufacturer.objects.all()
+def suppliers(request):
+    supplier=Supplier.objects.all()
     context={
-        'manufactures':manufactures
+        'supplier':supplier
     }
-    return render(request, 'IMS_Admin/manufacturer_table.html', context)
+    return render(request, 'IMS_Admin/suppliers_table.html', context)
 
 
 
@@ -440,11 +454,11 @@ def delete_customer(request, customer_id):
         cust.delete()
         return redirect('customers')
 
-def delete_manufacturer(request, id):
+def delete_Supplier(request, id):
     if request.method=='POST':
-        prod=manufacturer.objects.get(id=id)
+        prod=Supplier.objects.get(id=id)
         prod.delete()
-        return redirect('manufactures')
+        return redirect('supplier')
 
 def delete_brand(request, id):
     if request.method=="POST":
@@ -545,13 +559,13 @@ def create_order(request):
             tax_type="GST"    
         )
         try:
-            product = warehouse.objects.get(product_name=order_detail.product.product_name)
+            product = stock.objects.get(product_name=order_detail.product.product_name)
             product.stock_number -= order_detail.quantity
             product.save()
-        except warehouse.DoesNotExist:
-            return HttpResponse("Product not found in warehouse.")
+        except stock.DoesNotExist:
+            return HttpResponse("Product not found in stock.")
 
-        return HttpResponse("Order created successfully and warehouse stock updated.")
+        return HttpResponse("Order created successfully and stock stock updated.")
     else:
         return HttpResponse("Invalid request method. Must be POST.")
 
@@ -776,17 +790,17 @@ def edit_department(request, id):
 
 def edit_manufacture(request, id):
     try:
-        manufacture = manufacturer.objects.get(id=id)
-    except manufacturer.DoesNotExist:
-        return redirect('manufactures')
+        manufacture = Supplier.objects.get(id=id)
+    except Supplier.DoesNotExist:
+        return redirect('supplier')
 
     if request.method == 'POST':
-        manufacture.Company_Name = request.POST.get('manufacturer_name')
-        manufacture.email = request.POST.get('manufacturer_email')
-        manufacture.contact_number = request.POST.get('manufacturer_contact')
+        manufacture.Company_Name = request.POST.get('Supplier_name')
+        manufacture.email = request.POST.get('Supplier_email')
+        manufacture.contact_number = request.POST.get('Supplier_contact')
         manufacture.gstin_number = request.POST.get('gstin_number')
         manufacture.pan_number = request.POST.get('pan_number')
-        manufacture.address = request.POST.get('manufacturer_address')
+        manufacture.address = request.POST.get('Supplier_address')
         manufacture.bank_account_number = request.POST.get('bank_account_number')
         manufacture.ifsc_code = request.POST.get('ifsc_code')
         manufacture.bank_name = request.POST.get('bank_name')
@@ -796,7 +810,7 @@ def edit_manufacture(request, id):
 
         manufacture.save()
 
-        return redirect('manufactures')
+        return redirect('supplier')
     else:
         return render(request, "IMS_admin/edit_manufacture.html", {'manufacture': manufacture})
 
@@ -823,9 +837,9 @@ def edit_product(request, product_id):
         product.dimension_unit = request.POST.get('dimensionUnit')
         product.cost_price = request.POST.get('cost_price')
         product.selling_price = request.POST.get('selling_price')
-        manu=request.POST.get('manufacturer_name')
-        manufac=manufacturer.objects.get(id=manu)
-        product.manufacturer = manufac
+        manu=request.POST.get('Supplier_name')
+        manufac=Supplier.objects.get(id=manu)
+        product.Supplier = manufac
         brand=request.POST.get('brand_name') 
         brands=Brand.objects.get(id=brand)
         product.brand = brands
@@ -843,8 +857,8 @@ def edit_product(request, product_id):
     else:
         categories = Category.objects.all()
         brands = Brand.objects.all()
-        manufacturers = manufacturer.objects.all()
-        return render(request, "IMS_admin/edit_product.html", {'product': product, 'categories': categories, 'brands': brands, 'manufacturers': manufacturers})    
+        Suppliers = Supplier.objects.all()
+        return render(request, "IMS_admin/edit_product.html", {'product': product, 'categories': categories, 'brands': brands, 'Suppliers': Suppliers})    
 
 
 
@@ -923,6 +937,7 @@ def add_customer(request):
 
 
 def createOrder(request):
+    
     if request.method == "POST":
         customer_id = request.POST.get('customer_id')
         customer_name = request.POST.get('customer_id')
@@ -938,6 +953,7 @@ def createOrder(request):
         tax_rates = request.POST.getlist('tax_rate[]')
 
         # Fetch customer object
+        
         customer = Customer.objects.get(customer_id=customer_id)
 
         # Fetch sales employee object
@@ -977,6 +993,8 @@ def createOrder(request):
             'employees': employees,
         }
         return render(request, 'Extra/create_orders.html', context)
+    
+
 def edit_order(request, id):
     order = get_object_or_404(Order, id=id)
     order_details = OrderDetail.objects.filter(order=order)
@@ -1051,18 +1069,51 @@ def register(request):
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from xhtml2pdf import pisa
+from xhtml2pdf import pisa # type: ignore
 from django.template.loader import render_to_string
 from io import BytesIO
 
+def convert_to_indian_currency(number):
+    number_words = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                    "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"]
+    tens_words = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+
+    if number == 0:
+        return "Zero"
+
+    def convert(number):
+        if number < 20:
+            return number_words[number]
+        elif number < 100:
+            return tens_words[number // 10] + ('' if number % 10 == 0 else ' ' + number_words[number % 10])
+        elif number < 1000:
+            return number_words[number // 100] + " Hundred" + ('' if number % 100 == 0 else ' ' + convert(number % 100))
+        elif number < 100000:
+            return convert(number // 1000) + " Thousand" + ('' if number % 1000 == 0 else ' ' + convert(number % 1000))
+        elif number < 10000000:
+            return convert(number // 100000) + " Lakh" + ('' if number % 100000 == 0 else ' ' + convert(number % 100000))
+        elif number < 1000000000:
+            return convert(number // 10000000) + " Crore" + ('' if number % 10000000 == 0 else ' ' + convert(number % 10000000))
+        else:
+            return "Number too large"
+
+    # Call the convert function and capitalize the first letter
+    return convert(int(number)).capitalize()
+
+
 def generate_invoice_pdf(request, id):
-    print('invoice-generation')
-    print('id', id)
     inv = get_object_or_404(invoice, id=id)
     inv_details = invoice_items.objects.filter(invoice_id=inv)
     cmp = Company_details.objects.get(id=1)
     ord = inv.order_id
     cust = inv.customer
+
+    # Calculate total and total tax amount, converting each value to float
+    total_amount = sum(float(item.net_amount or 0) for item in inv_details)
+    total_tax_amount = sum(float(item.tax_amount or 0) for item in inv_details)
+
+    # Convert total amount to words using the custom function
+    total_in_words = convert_to_indian_currency(total_amount) + " only."
 
     context = {
         'invoice': inv,
@@ -1070,6 +1121,9 @@ def generate_invoice_pdf(request, id):
         'cmp_details': cmp,
         'customer': cust,
         'ord': ord,
+        'total_amount': total_amount,
+        'total_tax_amount': total_tax_amount,
+        'total_in_words': total_in_words,
     }
 
     rendered_html = render_to_string('IMS_Admin/invoice_pdf.html', context)
@@ -1083,24 +1137,24 @@ def generate_invoice_pdf(request, id):
         return response
     else:
         return HttpResponse('We had some errors with the PDF generation', status=500)
-    
+
 
 
 
 def edit_stock(request, id):
     try:
-        stock = warehouse.objects.get(id=id)
-    except warehouse.DoesNotExist:
-        return redirect('warehouse')
+        stock = stock.objects.get(id=id)
+    except stock.DoesNotExist:
+        return redirect('stock')
 
     if request.method == 'POST':
         try:
-            manufacturer_instance = manufacturer.objects.get(id=request.POST.get('manufacturer_name'))
+            Supplier_instance = Supplier.objects.get(id=request.POST.get('Supplier_name'))
             brand_instance = Brand.objects.get(id=request.POST.get('brand_name'))
-        except (manufacturer.DoesNotExist, Brand.DoesNotExist):
-            return redirect('warehouse')  # Or handle the error as you see fit
+        except (Supplier.DoesNotExist, Brand.DoesNotExist):
+            return redirect('stock')  # Or handle the error as you see fit
 
-        stock.manufacturer = manufacturer_instance
+        stock.Supplier = Supplier_instance
         stock.upc = request.POST.get('upc')
         stock.brand = brand_instance
         stock.mpn = request.POST.get('mpn')
@@ -1112,9 +1166,9 @@ def edit_stock(request, id):
         stock.ean = request.POST.get('ean')
         stock.save()
 
-        return redirect('warehouse')
+        return redirect('stock')
     else:
-        manu = manufacturer.objects.all()
+        manu = Supplier.objects.all()
         prod = Product.objects.all()
         brand = Brand.objects.all()
         return render(request, "IMS_admin/edit_stock.html", {'stock': stock, 'prod': prod, 'brand': brand, 'manu': manu})
@@ -1122,6 +1176,201 @@ def edit_stock(request, id):
 
 def delete_stock(request, id):
     if request.method=="POST":
-        stock=warehouse.objects.get(id=id)
+        stock=stock.objects.get(id=id)
         stock.delete()
-        return redirect('warehouse')
+        return redirect('stock')
+    
+
+def create_purchase_order(request):
+
+    if request.method == 'POST':
+
+        try:
+            with transaction.atomic():
+                supplier_id = request.POST.get('supplier_id')
+                expected_delivery_date = request.POST.get('expected_delivery_date')
+                status = request.POST.get('status')
+                total_amount = request.POST.get('total_amount')
+
+                supplier = Supplier.objects.get(id=supplier_id)
+                
+                # Create the Purchase Order
+                purchase_order = PurchaseOrder.objects.create(
+                    supplier=supplier,
+                    expected_delivery_date=expected_delivery_date,
+                    status=status,
+                    total_amount=total_amount,
+                )
+                
+                # Loop through the products
+                products = request.POST.getlist('product[]')
+                quantities = request.POST.getlist('quantity[]')
+                unit_prices = request.POST.getlist('unit_price[]')
+                total_prices = request.POST.getlist('total_price[]')
+                
+                for i in range(len(products)):
+                    product_id = products[i]
+                    quantity = quantities[i]
+                    unit_price = unit_prices[i]
+                    total_price = total_prices[i]
+
+                    product = Product.objects.get(product_id=product_id)
+                    
+                    # Create PurchaseOrderItem for each product
+                    PurchaseOrderItem.objects.create(
+                        purchase_order=purchase_order,
+                        product=product,
+                        quantity=quantity,
+                        unit_price=unit_price,
+                        total_price=total_price,
+                    )
+                
+                messages.success(request, "Purchase Order has been placed successfully.")
+                return redirect('purchase_orders')
+        
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            return redirect(reverse('purchase_order'))
+    else:
+        supplier=Supplier.objects.all()
+        products=Product.objects.all()
+        context={'supplier': supplier,
+                'products':products}
+
+        return render(request, 'IMS_admin/purchase_form.html', context)
+
+def manage_purchase_orders(request):
+    purchase=PurchaseOrder.objects.all()
+    context={'purchase': purchase}
+    return render(request, 'IMS_admin/purchasetable.html', context)
+
+def manage_warehouse_locations(request):
+    return HttpResponse("Manage stock Locations page")
+
+def manage_warehouse_stock(request):
+    return HttpResponse("Manage stock Stock page")
+
+def low_stock_alerts(request):
+    return HttpResponse("Low Stock Alerts page")
+
+def accounts_receivable(request):
+    if request.method == 'POST':
+        invoice_id = request.POST.get('invoice')
+        new_payment = float(request.POST.get('amount_paid', '0.0'))
+        payment_method = request.POST.get('payment_method')
+        notes = request.POST.get('notes')
+        status = request.POST.get('status')
+        balance_due = float(request.POST.get('balance_due', '0.0'))  # Use the balance due from the form
+        payment_date = request.POST.get('payment_date') if request.POST.get('payment_date') else timezone.now().date()
+
+        try:
+            invoice_obj = invoice.objects.get(id=invoice_id)
+            ar, created = AccountsReceivable.objects.get_or_create(
+                invoice=invoice_obj,
+                defaults={
+                    'customer': invoice_obj.customer,
+                    'total_amount': invoice_obj.total_amount,
+                    'balance_due': balance_due,  # Use the calculated balance due
+                    'due_date': invoice_obj.due_date,
+                    'amount_paid': new_payment,
+                    'payment_date': payment_date,
+                    'payment_method': payment_method,
+                    'notes': notes,
+                    'status': status,
+                }
+            )
+
+            if not created:
+                # Only update the fields if the AccountsReceivable object was not newly created
+                ar.amount_paid += new_payment
+                ar.balance_due = balance_due  # Use the balance due passed from the form
+                ar.payment_date = payment_date
+                ar.payment_method = payment_method
+                ar.notes = notes
+                ar.status = status
+                ar.save()
+
+            messages.success(request, 'Accounts Receivable updated successfully.')
+            return redirect('manage_accounts_receivable')
+        except invoice.DoesNotExist:
+            messages.error(request, 'Invalid Invoice ID.')
+            return redirect('accounts_receivable')
+        except Exception as e:
+            messages.error(request, f'An error occurred: {e}')
+            return redirect('accounts_receivable')
+    else:
+        invoices = invoice.objects.all()
+        context = {'invoices': invoices}
+        return render(request, 'IMS_admin/accounts_receivable.html', context)
+
+    return redirect('accounts_receivable')
+
+
+
+def manage_accounts_payable(request):
+    accounts=AccountsPayable.objects.all()
+    context={
+        'accounts':accounts
+    }
+    return render(request, 'IMS_admin/accounts_payable_table.html', context)
+
+def purchase_order_detail(request):
+    return HttpResponse("Accounts Payable page")
+
+def edit_purchase(request):
+    return HttpResponse("Accounts Payable page")
+
+def manage_accounts_receviable(request):
+    accounts=AccountsReceivable.objects.all()
+    context={
+        'accounts':accounts
+    }
+    return render(request, 'IMS_admin/accounts_receviable_table.html', context)
+
+def accounts_payable(request):
+    purchase_orders=PurchaseOrder.objects.all()
+
+
+def accounts_payable(request):
+    if request.method == 'POST':
+        supplier_id = request.POST.get('supplier')
+        purchase_order_id = request.POST.get('purchase_order')
+        total_payable_amount = request.POST.get('total_payable_amount')
+        balance_due = request.POST.get('balance_due')
+        amount_paid = request.POST.get('amount_paid')
+        due_date = request.POST.get('due_date')
+        payment_date = request.POST.get('payment_date')
+        status = request.POST.get('status')
+
+        # Fetch the related supplier and purchase order objects
+        supplier = Supplier.objects.get(name=supplier_id)
+        purchase_order = PurchaseOrder.objects.get(id=purchase_order_id)
+
+        # Create a new AccountsPayable record
+        accounts_payable = AccountsPayable(
+            supplier=supplier,
+            purchase_order=purchase_order,
+            total_payable_amount=total_payable_amount,  
+            amount_paid=amount_paid,
+            balance_due=balance_due,
+            due_date=due_date,
+            payment_date=payment_date,
+            status=status
+        )
+        accounts_payable.save()
+
+        # Redirect to a success page or the same form with a success message
+        return redirect('manage_accounts_payable')  # Replace 'success_url' with your success page URL name
+
+    # Handle GET request
+    purchase_orders = PurchaseOrder.objects.all()
+    suppliers = Supplier.objects.all()
+
+    context = {
+        'purchase_orders': purchase_orders,
+        'suppliers': suppliers
+    }
+
+    return render(request, 'IMS_admin/accounts_payable.html', context)
+
+

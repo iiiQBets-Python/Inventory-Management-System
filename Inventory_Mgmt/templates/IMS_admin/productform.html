@@ -177,10 +177,10 @@
       <div class="col-md-4">
         <h4 class="section-title">Supplier Information</h4>
         <div class="form-group">
-          <label for="manufacturer_name">Manufacturer</label>
-          <select class="form-control" id="manufacturer_name" name="manufacturer_name" required>
+          <label for="supplier_name">Supplier</label>
+          <select class="form-control" id="supplier_name" name="supplier_name" required>
             {% for man in manu %}
-            <option value="{{ man.id }}">{{ man.Company_Name }}</option>
+            <option value="{{ man.id }}">{{ man.name }}</option>
             {% endfor %}
           </select>
         </div>
@@ -293,7 +293,7 @@
     document.getElementById("dimensionUnit").value = "";
     document.getElementById("cost_price").value = "";
     document.getElementById("selling_price").value = "";
-    document.getElementById("manufacturer_name").value = "";
+    document.getElementById("supplier_name").value = "";
     document.getElementById("brand_name").value = "";
     document.getElementById("upc").value = "";
     document.getElementById("ean").value = "";

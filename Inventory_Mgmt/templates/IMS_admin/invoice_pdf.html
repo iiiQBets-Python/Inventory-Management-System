@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice pdf</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -115,7 +116,7 @@
         </div>
         <p>___________________________________________________________________________________________________________</p>
         <div class="details-section">
-            <table class="invoice-table">
+            <table class="invoice-table" id="invoiceTable">
                 <thead>
                     <tr>
                         <th>Sl. No</th>
@@ -149,14 +150,14 @@
                 <tfoot>
                     <tr>
                         <td colspan="8">Total:</td>
-                        <td id="totalTaxAmount">Rs.0.00</td>
-                        <td id="totalAmount">Rs.0.00</td>
+                        <td id="totalTaxAmount">Rs.{{ total_tax_amount }}</td>
+                        <td id="totalAmount">Rs.{{ total_amount }}</td>
                     </tr>
                 </tfoot>
             </table>
         </div>
         <div class="details-section">
-            <p>Total Amount in Words: <strong id="totalInWords"></strong></p>
+            <p>Total Amount in Words: <strong id="totalInWords">{{ total_in_words }}</strong></p>
         </div>
         <p>___________________________________________________________________________________________________________</p>
         <div class="terms">
@@ -173,5 +174,6 @@
             <p class="small-font">Date: {{ invoice.invoice_date }}</p>
         </div>
     </div>
+    
 </body>
 </html>

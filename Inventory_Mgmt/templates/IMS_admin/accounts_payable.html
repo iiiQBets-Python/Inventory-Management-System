@@ -1,0 +1,169 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} Add Accounts Payable {% endblock %}
+{% block styles %}
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        font-weight: bold;
+    }
+    .form-control {
+        border-radius: 5px;
+        height: 40px;
+        border: 1px solid #dfcdcd;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease-in-out;
+        padding: 5px;
+    }
+    .container {
+        margin-top: 60px;
+        margin-bottom: 20px;
+        width: calc(100% - 17%);
+        border: 2px solid #fffefe;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
+        background-color: #ffffff;
+        overflow-y: auto;
+        max-height: 600px;
+    }
+    .custom-header {
+        text-align: center;
+        color: #0f5311;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    select {
+        width: 100%;
+        height: 40px;
+    }
+    .btn-primary {
+        width: 20%;
+        height: 35px;
+        font-size: 14px;
+        padding: 5px;
+        margin: 0 auto;
+        display: block;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h3 class="custom-header">Accounts Payable</h3>
+    <form id="payableForm" method="POST" action="{% url 'accounts_payable' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="purchase_order">Purchase Order ID</label>
+                    <select class="form-control" id="purchase_order" name="purchase_order" required onchange="updatePurchaseOrderDetails()">
+                        <option value="">Select Purchase Order</option>
+                        {% for purchase_order in purchase_orders %}
+                        <option value="{{ purchase_order.id }}"
+                            data-suppliername="{{ purchase_order.supplier.name }}"
+                            data-supplierid="{{ purchase_order.supplier.id }}"
+                            data-totalpayable="{{ purchase_order.total_amount }}"
+                            data-duedate="{{ purchase_order.due_date|date:'Y-m-d' }}">
+                            PO #{{ purchase_order.id }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="total_payable_amount">Total Payable Amount</label>
+                    <input type="number" class="form-control" id="total_payable_amount" name="total_payable_amount" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="amount_paid">Amount Paid</label>
+                    <input type="number" class="form-control" id="amount_paid" name="amount_paid" required oninput="calculateBalance()">
+                </div>
+                <div class="form-group">
+                    <label for="balance_due">Balance Due</label>
+                    <input type="number" class="form-control" id="balance_due" name="balance_due" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="supplier">Supplier</label>
+                    <input type="text" class="form-control" id="supplier" name="supplier" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="due_date">Due Date</label>
+                    <input type="date" class="form-control" id="due_date" name="due_date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="payment_date">Payment Date</label>
+                    <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ today|date:'Y-m-d' }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Partially Paid">Partially Paid</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const purchaseOrderSelect = document.getElementById('purchase_order');
+        const amountPaidField = document.getElementById('amount_paid'); // Ensuring we have a reference to the amount paid input
+    
+        purchaseOrderSelect.addEventListener('change', updatePurchaseOrderDetails);
+        amountPaidField.addEventListener('input', calculateBalance); // Adding this to handle live updates to amount paid
+    
+        function updatePurchaseOrderDetails() {
+            const selectedOption = purchaseOrderSelect.options[purchaseOrderSelect.selectedIndex];
+            if (selectedOption.value) {
+                const supplierField = document.getElementById('supplier');
+                const totalAmountField = document.getElementById('total_payable_amount');
+                const dueDateField = document.getElementById('due_date');
+    
+                supplierField.value = selectedOption.getAttribute('data-suppliername');
+                totalAmountField.value = selectedOption.getAttribute('data-totalpayable');
+                dueDateField.value = selectedOption.getAttribute('data-duedate');
+    
+                calculateBalance(); // Ensure balance is calculated immediately after update
+            } else {
+                resetFields();
+            }
+        }
+    
+        function calculateBalance() {
+            const totalAmount = parseFloat(document.getElementById('total_payable_amount').value) || 0;
+            const amountPaid = parseFloat(document.getElementById('amount_paid').value) || 0;
+            const balanceDueField = document.getElementById('balance_due');
+            balanceDueField.value = (totalAmount - amountPaid).toFixed(2); // Ensure balance due is updated
+        }
+    
+        function resetFields() {
+            document.getElementById('supplier').value = '';
+            document.getElementById('total_payable_amount').value = '';
+            document.getElementById('due_date').value = '';
+            document.getElementById('balance_due').value = '';
+        }
+    
+        setDateToday();
+        function setDateToday() {
+            const paymentDateField = document.getElementById('payment_date');
+            const today = new Date().toISOString().split('T')[0];
+            paymentDateField.value = today;
+        }
+    });
+    </script>
+    
+{% endblock %}

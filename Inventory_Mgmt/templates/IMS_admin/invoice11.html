@@ -63,15 +63,6 @@
         text-align: center;
     }
 
-    .table th:nth-child(2),
-    .table td:nth-child(2) {
-        width: 30%;
-    }
-
-    .table th:nth-child(6),
-    .table td:nth-child(6) {
-        width: 15%;
-    }
 
     .delete-btn {
         cursor: pointer;
@@ -164,21 +155,51 @@
         justify-content: space-around;
     }
 
-    .table th:nth-child(4),
-    .table td:nth-child(4),
-    .table th:nth-child(5),
-    .table td:nth-child(5), 
-    .table th:nth-child(6),
-    .table td:nth-child(6), 
-    .table th:nth-child(7),
-    .table td:nth-child(7), 
-    .table th:nth-child(8),
-    .table td:nth-child(8), 
-    .table th:nth-child(9),
-    .table td:nth-child(9) { 
-        width: 10%; 
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 15%;
     }
-    
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 20%;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 8%;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 10%;
+    }
+
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 10%;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 5%;
+    }
+
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 10%;
+    }
+
+    .table th:nth-child(8),
+    .table td:nth-child(8) {
+        width: 5%;
+    }
+
+    .table th:nth-child(9),
+    .table td:nth-child(9) {
+        width: 15%;
+    }
+
 
 </style>
 {% endblock %}
@@ -264,7 +285,7 @@
                     <tbody id="itemsTableBody">
                         <tr>
                             <td><input type="text" class="form-control" name="product[]" readonly></td>
-                            <td><input type="text" class="form-control" name="item_description[]" readonly></td>
+                            <td><textarea class="form-control" name="item_description[]" rows="2" required readonly></textarea>
                             <td><input type="number" class="form-control" name="quantity[]" required></td>
                             <td><input type="number" class="form-control" name="unit_price[]" required></td>
                             <td>
@@ -278,12 +299,7 @@
                             <td><input type="number" class="form-control" name="tax_amount[]" readonly></td>
                             <td><input type="number" class="form-control" name="discount[]" value="0" required></td>
                             <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
-                            <td class="actions-container">
-                                <!-- <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-success delete-btn" onclick="addRow()"><i class="fas fa-plus"></i></button>
-                                    <button type="button" class="btn btn-danger delete-btn" onclick="removeRow(this)"><i class="fas fa-trash"></i></button>
-                                </div> -->
-                            </td>
+                        
                         </tr>                        
                     </tbody>
                 </table>
@@ -379,12 +395,7 @@
                         <td><input type="number" class="form-control" name="tax_amount[]" readonly></td>
                         <td><input type="number" class="form-control" name="discount[]" value="0" required></td>
                         <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
-                        <td class="actions-container">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-success delete-btn" onclick="addRow()"><i class="fas fa-plus"></i></button>
-                                <button type="button" class="btn btn-danger delete-btn" onclick="removeRow(this)"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </td>
+
                     `;
 
                     itemsTableBody.appendChild(row);
@@ -502,5 +513,3 @@
 </script>
 
 {% endblock %}
-
-

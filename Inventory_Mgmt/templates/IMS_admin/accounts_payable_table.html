@@ -1,7 +1,8 @@
-{% include 'base\base.html' %}
+
+{% include 'base/base.html' %}
 
 {% load static %}
-{% block title %} Products {% endblock %}
+{% block title %} Accounts Payable {% endblock %}
 {% block styles %}
 <style>
 body {
@@ -83,15 +84,10 @@ body {
 }
 
 .button-container {
-    display: flex; /* Change to flex for alignment */
-    justify-content: space-between; /* Distribute buttons evenly */
-    align-items: center; /* Align items vertically */
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
     margin-bottom: 10px;
-}
-
-.modal-content {
-    width: 100%;
-    padding: 20px;
 }
 
 .pagination {
@@ -115,16 +111,8 @@ body {
     background-color: #264f36;
 }
 
-.search-input {
-    font-size: 12px; 
-}
-
 .btn-primary {
     font-size: 12px;
-}
-.background-color {
-    background-color: #4CAF50;
-    color: white; 
 }
 
 .btn-success.csv-pdf-copy {
@@ -138,7 +126,6 @@ body {
     background-color: #264f36; 
     border-color: #218838; 
 }
-
 
 .edit-button,
 .delete-button {
@@ -159,6 +146,7 @@ body {
     display: flex;
     justify-content: space-evenly;
 }
+
 .btn-sm {
     color: #eaecf1;
     font-size: 8px;
@@ -188,7 +176,7 @@ body {
         <div class="row mb-2">
             <div class="col-12">
                 <div class="button-container">
-                    <button class="btn btn-success" id="addProductBtn"><i class="fas fa-plus"></i> Add Manufacturer</button>
+                    <button class="btn btn-success" id="addPayableForm"><i class="fas fa-plus"></i> Accounts Payable</button>
                     <div class="action-buttons">
                         <button class="btn btn-success csv-pdf-copy" id="csvExportBtn"><i class="fas fa-file-csv"></i> CSV</button>
                         <button class="btn btn-success csv-pdf-copy" id="pdfExportBtn"><i class="fas fa-file-pdf"></i> PDF</button>
@@ -202,96 +190,60 @@ body {
         <div class="table-responsive">
             <table class="table table-striped" id="myTable">
                 <thead>
-                    
                     <tr>
                         <th></th>
-                        <th>Manufacturer ID</th>
-                        <th>Manufacturer Name</th>
-                        <th>Email</th>
-                        <th>GSTIN Number</th>
-                        <th>License Number</th>
-                        <th>Business Type</th>
+                        <th>Payable ID</th>
+                        <th>Supplier</th>
+                        <th>Purchase Order ID</th>
+                        <th>Amount Due</th>
+                        <th>Amount Paid</th>
+                        <th>Balance Due</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>View</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                
                 <tbody>
-                    <!-- Sample Data (Replace with actual data from backend) -->
-                    {% for manufacturer in manufactures %}
+                    {% for payable in accounts %}
                     <tr>
                         <td>
-                            <button class="btn btn-sm  " data-bs-toggle="modal" data-bs-target="#addModal{{ manufacturer.id }}"><i class="fas fa-plus"></i></button>
+                            <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fas fa-plus"></i></button>
                         </td>
-                        <td>{{ manufacturer.id }}</td>
-                        <td>{{ manufacturer.Company_Name }}</td>
-                        <td>{{ manufacturer.email }}</td>
-                        <td>{{ Manufacturer.gstin_number }}</td>
-                         <td>{{ manufacturer.business_license_number }}</td>
-                         <td>{{ manufacturer.business_type }}</td>
+                        <td>{{ payable.id }}</td>
+                        <td>{{ payable.supplier.name }}</td>
+                        <td>{{ payable.purchase_order.id }}</td>
+                        <td>{{ payable.total_payable_amount }}</td>
+                        <td>{{ payable.amount_paid }}</td>
+                        <td>{{ payable.balance_due }}</td>
+                        <td>{{ payable.due_date }}</td>
+                        <td>{{ payable.status }}</td>
+                        <td>
+                            <form id="viewForm{{ payable.id }}" action="#" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="view-button"><i class="fas fa-eye"></i></button>
+                            </form>
+                        </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="{% url 'edit_manufacture' id=manufacturer.id %}">
-                                    <button class="edit-button" onclick="editRow(1)">
+                                <a href="#">
+                                    <button class="edit-button">
                                         <i class="fas fa-pencil-alt"></i>
                                     </button>
-                                </a>
-                                <form id="deleteForm{{ manufacturer.id }}" action="{% url 'delete_manufacturer' manufacturer.id %}" method="post">
+                                </a> 
+                                <form id="deleteForm{{ payable.id }}" action="#" method="post">
                                     {% csrf_token %}
-                                    <button type="button" class="delete-button" onclick="confirm('Are you sure you want to delete this Manufacturer?') ? document.getElementById('deleteForm{{ employee.id }}').submit() : null;"><i class="fas fa-trash"></i></button>                                
-                                </form>                            
+                                    <button type="button" class="delete-button" onclick="confirm('Are you sure you want to delete this Payable?') ? document.getElementById('deleteForm{{ payable.id }}').submit() : null;"><i class="fas fa-trash"></i></button>                                
+                                </form> 
                             </div>
                         </td>
                     </tr>
                     {% endfor %}
-                    <!-- Add more rows as needed -->
                 </tbody>
             </table>
         </div>
     </div>
 </div>
-
-{% for manufacturer in manufactures %}
-<div class="modal fade" id="addModal{{ manufacturer.id }}" tabindex="-1" aria-labelledby="addModalLabel{{ manufacturer.id }}" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header background-color">
-                <h5 class="modal-title background-color" id="addModalLabel{{ manufacturer.id }}">Additional Fields</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>            
-            <div class="modal-body">
-                <table class="table">
-                    <tbody>
-                       
-                        <tr>
-                            <tr>
-                                <td>Address</td>
-                                <td>{{ manufacturer.address }}</td>
-                            </tr>
-                            <tr>
-                                <td>Contact Number</td>
-                                <td>{{ manufacturer.contact_number }}</td>
-                            </tr>
-                            <tr>
-                                <td>Bank Name</td>
-                                <td>{{ manufacturer.bank_name }}</td>
-                            </tr>
-                            <tr>
-                                <td>Account Number</td>
-                                <td>{{ manufacturer.bank_account_number }}</td>
-                            </tr>
-                            <tr>
-                                <td>IFSC Code</td>
-                                <td>{{ manufacturer.ifsc_code }}</td>
-                            </tr>
-                            
-                    </tbody>
-                </table>
-                
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -304,33 +256,28 @@ body {
 <script>
 $(document).ready(function() {
     var table = $('#myTable').DataTable({
-        searching: true, // Enable searching
+        searching: true,
         lengthMenu: [5, 10, 25, 50, 100], 
         buttons: [
             {
                 extend: 'copy',
                 exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6] 
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9] 
                 }
             },
             {
                 extend: 'csv',
                 exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6] 
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9] 
                 }
             },
             {
                 extend: 'pdf',
                 exportOptions: {
-                    columns: [1, 2, 3, 4, 5, 6] 
+                    columns: [1, 2, 3, 4, 5, 6, 7, 8, 9] 
                 }
             }
         ]
-    });
-
-    $('#addProductBtn').on('click', function() {
-        // Open the modal for adding products
-        $('#addModal').modal('show');
     });
 
     $('#csvExportBtn').on('click', function() {
@@ -341,13 +288,18 @@ $(document).ready(function() {
         table.buttons('.buttons-pdf').trigger();
     });
 
-
     $('#copyBtn').on('click', function() {
         table.buttons('.buttons-copy').trigger();
     });
 });
-document.getElementById("addProductBtn").onclick = function () {
-        location.href = "{% url 'add_manufacturer' %}";
-    };
+
+document.getElementById("addPayableForm").onclick = function () {
+    location.href = "{% url 'accounts_payable' %}";
+};
+
+document.getElementById("viewForm{{ payable.id }}").addEventListener("submit", function(event) {
+    // This will automatically submit the form when you click on the view button
+});
+
 </script>
 {% endblock %}

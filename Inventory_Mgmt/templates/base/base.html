@@ -13,7 +13,6 @@
     {% endblock %}
 </head>
 
-
 <body>
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container-fluid">
@@ -116,48 +115,55 @@
         <ul class="menu">
             <li><a href="{% url 'dashboard'%}" class="menu-item"><i class="fas fa-tachometer-alt"></i><span class="menu-text">Dashboard</span></a></li>
             <li>
-                <a href="#" class="menu-item"><i class="fas fa-building"></i><span class="menu-text">Department</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-building"></i><span class="menu-text">Contacts</span></a>
                 <ul class="submenu">
-                    <li><a href="{%  url 'departments' %}" class="submenu-item"><i class="fas fa-cogs"></i><span class="menu-text">Department</span></a>
-                    </li>
-                    <li><a href="{%  url 'employees' %}" class="submenu-item"><i class="fas fa-users"></i><span class="menu-text">Employee</span></a>
-                    </li>
+                    <li><a href="{%  url 'departments' %}" class="submenu-item"><i class="fas fa-cogs"></i><span class="menu-text">Department</span></a></li>
+                    <li><a href="{%  url 'employees' %}" class="submenu-item"><i class="fas fa-users"></i><span class="menu-text">Employee</span></a></li>
+                    <li><a href="{% url 'customers' %}" class="submenu-item"><i class="fas fa-users"></i><span class="menu-text">Customers</span></a></li>
+                    <li><a href="{% url 'suppliers' %}" class="submenu-item"><i class="fas fa-industry"></i><span class="menu-text">Suppliers</span></a></li>
                 </ul>
             </li>
             <li>
-                <a href="#" class="menu-item"><i class="fas fa-box-open"></i><span class="menu-text">Inventory</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-box-open"></i><span class="menu-text">Product</span></a>
                 <ul class="submenu">
-                    <li><a href="{% url 'manufactures' %}" class="submenu-item"><i class="fas fa-industry"></i><span class="menu-text">Manufacturers</span></a>
-                    </li>
-                    <li><a href="{% url 'category' %}" class="submenu-item"><i class="fas fa-list"></i><span class="menu-text">Categories</span></a>
-                    </li>
-                    <li><a href="{% url 'brands' %}" class="submenu-item"><i class="fas fa-tag"></i><span class="menu-text">Brands</span></a>
-                    </li>
-                    <li><a href="{% url 'products' %}" class="submenu-item"><i class="fas fa-cubes"></i><span class="menu-text">Manage
-                                Items</span></a></li>
-                    <li><a href="{% url 'warehouse' %}" class="submenu-item"><i class="fas fa-clipboard-list"></i><span class="menu-text">Stock
-                                Control</span></a></li>
-                </ul>
-            </li>
-            <li><a href="{% url 'customers' %}" class="menu-item"><i class="fas fa-users"></i><span class="menu-text">Customers</span></a></li>
-
-            <li>
-                <a href="#" class="menu-item"><i class="fas fa-shopping-cart"></i><span class="menu-text">Orders</span></a>
-                <ul class="submenu">
-                    <li><a href="{% url 'create_order' %}" class="submenu-item"><i class="fas fa-edit"></i><span class="menu-text">Place Orders</span></a></li>
-                    <li><a href="{% url 'orders' %}" class="submenu-item"><i class="fas fa-history"></i><span class="menu-text">Order
-                                History</span></a></li>
+                    <li><a href="{% url 'category' %}" class="submenu-item"><i class="fas fa-list"></i><span class="menu-text">Categories</span></a></li>
+                    <li><a href="{% url 'brands' %}" class="submenu-item"><i class="fas fa-tag"></i><span class="menu-text">Brands</span></a></li>
+                    <li><a href="{% url 'products' %}" class="submenu-item"><i class="fas fa-cubes"></i><span class="menu-text">Products</span></a></li>
+                    <li><a href="{% url 'stock' %}" class="submenu-item"><i class="fas fa-clipboard-list"></i><span class="menu-text">Stock Control</span></a></li>
                 </ul>
             </li>
             <li>
-                <a href="#" class="menu-item"><i class="fas fa-file-invoice"></i><span class="menu-text">Invoice</span></a>
+                <a href="#" class="menu-item"><i class="fas fa-shopping-cart"></i><span class="menu-text">Sales</span></a>
                 <ul class="submenu">
-                    <li><a href="{% url 'invoices' %}" class="submenu-item"><i class="fas fa-file-alt"></i><span class="menu-text">Manage Invoice</span></a></li>
+                    <li><a href="{% url 'orders' %}" class="submenu-item"><i class="fas fa-history"></i><span class="menu-text">Order History</span></a></li>
+                    <li><a href="{% url 'invoices' %}" class="submenu-item"><i class="fas fa-file-alt"></i><span class="menu-text">Sales Invoice</span></a></li>
                 </ul>
             </li>
-            
+            <li>
+                <a href="#" class="menu-item"><i class="fas fa-receipt"></i><span class="menu-text">Purchases</span></a>
+                <ul class="submenu">
+                    <li><a href="{% url 'purchase_orders' %}" class="submenu-item"><i class="fas fa-clipboard-list"></i><span class="menu-text">Manage Purchase Orders</span></a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="menu-item"><i class="fas fa-warehouse"></i><span class="menu-text">Warehouse</span></a>
+                <ul class="submenu">
+                    <li><a href="{% url 'warehouse_locations' %}" class="submenu-item"><i class="fas fa-map-marker-alt"></i><span class="menu-text">Manage Locations</span></a></li>
+                    <li><a href="{% url 'warehouse_stock' %}" class="submenu-item"><i class="fas fa-boxes"></i><span class="menu-text">Manage Stock</span></a></li>
+                    <li><a href="{% url 'low_stock_alerts' %}" class="submenu-item"><i class="fas fa-exclamation-triangle"></i><span class="menu-text">Low Stock Alerts</span></a></li>
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="menu-item"><i class="fas fa-dollar-sign"></i><span class="menu-text">Accounts</span></a>
+                <ul class="submenu">
+                    <li><a href="{% url 'manage_accounts_receviable' %}" class="submenu-item"><i class="fas fa-money-bill-wave"></i><span class="menu-text">Accounts Receivable</span></a></li>
+                    <li><a href="{% url 'manage_accounts_payable' %}" class="submenu-item"><i class="fas fa-money-check-alt"></i><span class="menu-text">Accounts Payable</span></a></li>
+                </ul>
+            </li>
+            {% comment %} 
             <li><a href="#" class="menu-item"><i class="fas fa-chart-line"></i><span class="menu-text">Reports</span></a></li>
-            <li><a href="#" class="menu-item"><i class="fas fa-cog"></i><span class="menu-text">Settings</span></a></li>
+            <li><a href="#" class="menu-item"><i class="fas fa-cog"></i><span class="menu-text">Settings</span></a></li> 
+            {% endcomment %}
         </ul>
     </div>
 
