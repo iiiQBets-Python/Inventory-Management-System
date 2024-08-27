@@ -42,14 +42,12 @@
       background-color: #e3e3e3;
     } */
     .container {
-    margin-top: 100px; 
+    margin-top: 50px; 
     width: 80%;
     left: 200px;
-    border: 2px solid #fffefe;
+    
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-    background-color: #ffffff;
+    
   }
     .custom-header {
       text-align: center;
@@ -81,7 +79,7 @@
       padding-top: 1.5%;
       margin-bottom: 20px; 
       box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-      padding-left: 12%;
+      text-align:center;
     }
 
     .image-container {
@@ -104,6 +102,7 @@
 
     .buttons {
       margin-left: -15px;
+      text-align:center;
     }
 
     @media (max-width: 768px) {
@@ -126,7 +125,7 @@
 
 {% block content %}
 <div class="container">
-    <h3 class="custom-header">Edit Product</h3>
+    <h3 class="section-title">Edit Product</h3>
     <form method="post" action="{% url 'edit_product' product.product_id %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">
@@ -211,13 +210,12 @@
             <div class="col-md-4">
                 <h4 class="section-title">Supplier Information</h4>
                 <div class="form-group">
-                    <label for="manufacturer_name">Manufacturer</label>
-                    <select class="form-control" id="manufacturer_name" name="manufacturer_name" required>
-                        <option value="{{ product.manufacturer.id }}" selected>{{ product.manufacturer.Company_Name }}</option>
-                        {% for man in manufacturers %}
-                        <option value="{{ man.id }}" {% if product.manufacturer.id == man.id %}selected{% endif %}>{{ man.Company_Name }}</option>
-                        {% endfor %}
-                    </select>
+                  <label for="supplier_name">Supplier:</label>
+                  <select class="form-control" id="supplier_name" name="Supplier_name">
+                    {% for supplier  in Suppliers %}
+                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
                 <div class="form-group">
                     <label for="brand_name">Brand</label>
@@ -229,16 +227,8 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="upc">UPC</label>
-                    <input type="text" class="form-control" id="upc" name="upc" maxlength="12" value="{{ product.upc }}">
-                </div>
-                <div class="form-group">
-                    <label for="ean">EAN</label>
-                    <input type="text" class="form-control" id="ean" name="ean" maxlength="13" value="{{ product.ean }}">
-                </div>
-                <div class="form-group">
-                    <label for="mpn">MPN</label>
-                    <input type="text" class="form-control" id="mpn" name="mpn" maxlength="50" value="{{ product.mpn }}">
+                  <label for="hsn">HSN Code</label>
+                  <input type="text" class="form-control" id="hsn" name="hsn" maxlength="12" placeholder="HSN code">
                 </div>
             </div>
             <div class="col-md-4">

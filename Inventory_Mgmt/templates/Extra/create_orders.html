@@ -23,16 +23,14 @@
     }
 
     .container {
-        margin-top: 60px;
+        margin-top: 50px;
         margin-bottom: 20px;
-        width: calc(100% - 17%);
-        border: 2px solid #fffefe;
+        width: calc(100% - 18%);
+        
         padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-        background-color: #ffffff;
+        
         overflow-y: auto;
-        max-height: 600px;
+        
     }
 
     .card-container {
@@ -87,15 +85,16 @@
         height: calc(100% - 9%);
     }
 
-    .section-header {
+    .section-title {
         font-size: 1.2em;
-        color: #0f5311;
-        background: linear-gradient(90deg, rgb(208, 250, 207) 0%, rgb(123, 249, 138) 100%);
-        padding-bottom: 10px;
+        color: #000000; 
+        background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+        padding-bottom: 10px; 
         padding-top: 1.5%;
-        margin-bottom: 20px;
+        margin-bottom: 20px; 
         box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-        padding-left: 1%;
+        padding-left: 5%;
+        text-align: center;
     }
 
     .header-align {
@@ -109,22 +108,22 @@
         background-color: #f2f2f2;
     }
 
-    .delete-btn i {
-        margin-right: 5px;
+    .fa-plus{
+        color:blue;
     }
 
-    .btn-primary {
-        background-color: #0f5311;
-        border-color: #0f5311;
-        width: 20%;
+    .fa-trash{
+        color:red;
+    }
+
+    .btn-primary,.btn-danger{ 
+        width: 8%;
+        margin:5px;
         
+        text-align:center;
     }
 
-    .btn-small {
-        padding: 3px 8px;
-        font-size: 10px;
-    }
-
+    
     .btn-primary:hover {
         background-color: #2c6fad;
         border-color: #0f5311;
@@ -170,11 +169,11 @@
     }
     
     .table th:nth-child(6), .table td:nth-child(6) { /* Tax Type */
-        width: 10%;
+        width: 6%;
     }
     
     .table th:nth-child(7), .table td:nth-child(7) { /* Tax Rate */
-        width: 5%;
+        width: 6%;
     }
     
     .table th:nth-child(8), .table td:nth-child(8) { /* Subtotal */
@@ -206,14 +205,19 @@
     .table input.form-control {
         width: 100%;
     }
+
+    .btn-container{
+        text-align:center;
+    }
     
 </style>
 {% endblock %}
 {% block content %}
 <div class="container">
-    <h3 class="custom-header">Order Placement</h3>
+    
     <form id="orderplacementForm" method="POST">
         {% csrf_token %}
+        <h3 class="section-title"> Create Orders</h3>
         <div class="row">
             <div class="col-md-4">
                 <div class="form-group">
@@ -247,6 +251,16 @@
                 </div>
             </div>
             <div class="col-md-4">
+                <div class="form-group">
+                    <label for="warehouse_id">Warehouse</label>
+                    <select class="form-control" id="warehouse_id" name="warehouse_id" required>
+                        <option value="">Select Warehouse</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
                 <div class="form-group">
                     <label for="order_date">Order Date</label>
                     <input type="date" class="form-control" id="order_date" name="order_date" readonly>
@@ -291,7 +305,7 @@
                             <td><input type="number" class="form-control" name="discount[]" required></td>
                             <td>
                                 <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
-                                    <option value="">Select Tax </option>
+                                    <option value="">Select</option>
                                     <option value="GST">GST</option>
                                     <option value="VAT">VAT</option>
                                 </select>
@@ -299,12 +313,12 @@
                             <td><input type="number" class="form-control" name="tax_rate[]" required readonly></td>
                             <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
                             <td>
-                                <button type="button" class="btn btn-success delete-btn btn-small" onclick="addRow()">
-                                    <i class="fas fa-plus"></i>
-                                </button>
-                                <button type="button" class="btn btn-danger delete-btn btn-small" onclick="deleteRow(this)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                
+                                    <i class="fas fa-plus" onclick="addRow()"></i>
+                                
+                                
+                                    <i class="fas fa-trash" onclick="deleteRow(this)"></i>
+                                
                             </td>
                         </tr>
                     </tbody>
@@ -313,9 +327,12 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-8">
+                    
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="total">Total</label>
                             <input type="text" class="form-control" id="total" name="total" readonly>
@@ -326,8 +343,9 @@
         </div>
 
         <div class="row">
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-primary">Place order</button>
+            <div class="col-md-12 btn-container">
+                <button type="submit" class="btn btn-primary">Place</button>
+                <button type="button" class="btn btn-danger">Cancel</button>
             </div>
         </div>
     </form>
@@ -439,7 +457,7 @@
             <td><input type="number" class="form-control" name="discount[]" required></td>
             <td>
                 <select class="form-control" name="tax_type[]" required onchange="fetchTaxRate(this)">
-                    <option value="">Select Tax Type</option>
+                    <option value="">Select</option>
                     <option value="GST">GST</option>
                     <option value="VAT">VAT</option>
                 </select>
@@ -447,13 +465,13 @@
             <td><input type="number" class="form-control" name="tax_rate[]" required readonly></td>
             <td class="subtotal"><input type="number" class="form-control" name="subtotal[]" readonly></td>
             <td>
-                <button type="button" class="btn btn-success delete-btn btn-small" onclick="addRow()">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <button type="button" class="btn btn-danger delete-btn btn-small" onclick="deleteRow(this)">
-                    <i class="fas fa-trash"></i>
-                </button>                              
-            </td>                   
+                                
+                                    <i class="fas fa-plus" onclick="addRow()"></i>
+                                
+                                
+                                    <i class="fas fa-trash" onclick="deleteRow(this)"></i>
+                                
+                            </td>                   
         `;
         tbody.appendChild(newRow);
 

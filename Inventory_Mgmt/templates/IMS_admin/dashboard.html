@@ -16,7 +16,20 @@
     h6{
         font-weight: bold;
     }
-    
+
+    /* Ensure the chart containers have enough space */
+    .card-body {
+        width: 100%;
+        height: auto;
+        padding: 20px;
+    }
+
+    /* Fix the height of the canvas to prevent shrinking */
+    canvas {
+        max-width: 100%;
+        height: 320px; /* Adjust as needed */
+    }
+
 </style>
 {% endblock %}
 
@@ -30,7 +43,7 @@
             <div class="card text-white bg-primary">
                 <div class="card-body">
                     <h6 class="card-title">Total Sales</h6>
-                    <p class="card-text">$500,000</p>
+                    <p class="card-text">₹5,00,000</p>
                 </div>
             </div>
         </div>
@@ -38,7 +51,7 @@
             <div class="card text-white bg-success">
                 <div class="card-body">
                     <h6 class="card-title">Total Revenue</h6>
-                    <p class="card-text">$1,200,000</p>
+                    <p class="card-text">₹12,00,000</p>
                 </div>
             </div>
         </div>
@@ -46,7 +59,7 @@
             <div class="card text-white bg-warning">
                 <div class="card-body">
                     <h6 class="card-title">Total Expenses</h6>
-                    <p class="card-text">$800,000</p>
+                    <p class="card-text">₹8,00,000</p>
                 </div>
             </div>
         </div>
@@ -54,7 +67,7 @@
             <div class="card text-white bg-danger">
                 <div class="card-body">
                     <h6 class="card-title">Total Profit</h6>
-                    <p class="card-text">$400,000</p>
+                    <p class="card-text">₹4,00,000</p>
                 </div>
             </div>
         </div>
@@ -81,7 +94,7 @@
             <div class="card text-white bg-dark">
                 <div class="card-body">
                     <h6 class="card-title">Accounts Receivable</h6>
-                    <p class="card-text">$250,000</p>
+                    <p class="card-text">₹2,50,000</p>
                 </div>
             </div>
         </div>
@@ -89,7 +102,7 @@
             <div class="card text-white bg-light">
                 <div class="card-body">
                     <h6 class="card-title text-dark">Accounts Payable</h6>
-                    <p class="card-text text-dark">$180,000</p>
+                    <p class="card-text text-dark">₹1,80,000</p>
                 </div>
             </div>
         </div>
@@ -110,7 +123,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="salesLineChart" height="150"></canvas>
+                    <canvas id="salesLineChart" height="320"></canvas>
                 </div>
             </div>
         </div>
@@ -126,7 +139,7 @@
                     </div>
                 </div>
                 <div class="card-body">
-                    <canvas id="revenueBarChart" height="150"></canvas>
+                    <canvas id="revenueBarChart" height="320"></canvas>
                 </div>
             </div>
         </div>
@@ -148,7 +161,7 @@
             <div class="card">
                 <div class="card-header">Stock Levels</div>
                 <div class="card-body">
-                    <canvas id="stockBarChart" height="150"></canvas>
+                    <canvas id="stockBarChart" height="320"></canvas>
                 </div>
             </div>
         </div>
@@ -160,7 +173,7 @@
             <div class="card">
                 <div class="card-header">Top Selling Products</div>
                 <div class="card-body">
-                    <canvas id="topProductsBarChart" height="150"></canvas>
+                    <canvas id="topProductsBarChart" height="320"></canvas>
                 </div>
             </div>
         </div>
@@ -215,18 +228,19 @@
             }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Initialize Revenue vs. Expenses (Bar Chart)
@@ -250,18 +264,19 @@
             }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Initialize Product Sales Distribution (Doughnut Chart)
@@ -279,20 +294,19 @@
             }]
         },
         options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Initialize Stock Levels (Bar Chart)
@@ -304,26 +318,25 @@
             datasets: [{
                 label: 'Stock Levels',
                 data: stockLevelsData.data,
-                //backgroundColor: 'rgba(153, 102, 255, 1)',
-                //borderColor: 'rgba(153, 102, 255, 2)',
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
                 borderColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)', 'rgba(255, 206, 86, 2)', 'rgba(75, 192, 192, 2)', 'rgba(153, 102, 255, 2)'],
                 borderWidth: 1
             }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Initialize Top Selling Products (Bar Chart)
@@ -335,26 +348,25 @@
             datasets: [{
                 label: 'Units Sold',
                 data: productSalesData.data,
-                //backgroundColor: 'rgba(255, 206, 86, 1)',
-                //borderColor: 'rgba(255, 206, 86, 2)',
                 backgroundColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
                 borderColor: ['rgba(255, 99, 132, 2)', 'rgba(54, 162, 235, 2)', 'rgba(255, 206, 86, 2)', 'rgba(75, 192, 192, 2)', 'rgba(153, 102, 255, 2)'],
                 borderWidth: 1
             }]
         },
         options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Initialize Accounts Receivable vs. Accounts Payable (Pie Chart)
@@ -372,20 +384,19 @@
             }]
         },
         options: {
-        responsive: true,
-        maintainAspectRatio: true,
-        aspectRatio: 2,
-        plugins: {
-            legend: {
-                labels: {
-                    boxWidth: 12, // Adjust the size of the color box
-                    font: {
-                    size: 12 // Adjust the font size for legend labels
+            responsive: true,
+            maintainAspectRatio: false, // Disable to allow vertical growth
+            plugins: {
+                legend: {
+                    labels: {
+                        boxWidth: 12,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
         }
-      }
     });
 
     // Functions to Update Charts

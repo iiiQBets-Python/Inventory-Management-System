@@ -1,0 +1,175 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %}Add Accounts Receivable{% endblock %}
+{% block styles %}
+<style>
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        font-weight: bold;
+    }
+    .form-control {
+        border-radius: 5px;
+        height: 40px;
+        border: 1px solid #dfcdcd;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease-in-out;
+        padding: 5px;
+    }
+    .container {
+        margin-top: 60px;
+        margin-bottom: 20px;
+        width: calc(100% - 17%);
+        
+        padding: 20px;
+        
+        overflow-y: auto;
+        max-height: 600px;
+    }
+    .custom-header {
+        text-align: center;
+        color: #0f5311;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    
+    .buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .section-title {
+        font-size: 1.2em;
+        color: #000000;
+        background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+        padding-bottom: 10px;
+        padding-top: 1.5%;
+        
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+        text-align: center;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    
+    <h4 class="section-title">Edit Accounts Receivable</h4>
+    <form id="receivableForm" method="POST" action="{% url 'edit_accounts_receviable' ar.id %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="invoice">Invoice ID</label>
+                    <select class="form-control" id="invoice" name="invoice" required onchange="updateInvoiceDetails()">
+                        {% for invoice in invoices %}
+                        <option value="{{ invoice.id }}" {% if invoice.id == ar.invoice.id %}selected{% endif %}
+                            data-firstname="{{ invoice.customer.first_name }}"
+                            data-lastname="{{ invoice.customer.last_name }}"
+                            data-totalamount="{{ invoice.total_amount|floatformat:2 }}"
+                            data-duedate="{{ invoice.due_date|date:'Y-m-d' }}">
+                            Invoice #{{ invoice.id }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="customer_name">Customer Name</label>
+                    <input type="text" class="form-control" id="customer_name" name="customer_name" value="{{ ar.customer.first_name }} {{ ar.customer.last_name }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="total_amount">Total Amount</label>
+                    <input type="number" class="form-control" id="total_amount" name="total_amount" value="{{ ar.total_amount }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="amount_paid">Amount Received</label>
+                    <input type="number" class="form-control" id="amount_paid" name="amount_paid" value="{{ ar.amount_paid }}" required oninput="calculateBalance()">
+                </div>
+                <div class="form-group">
+                    <label for="balance_due">Balance Due</label>
+                    <input type="number" class="form-control" id="balance_due" name="balance_due" value="{{ ar.balance_due }}" readonly>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="due_date">Due Date</label>
+                    <input type="date" class="form-control" id="due_date" name="due_date" value="{{ ar.due_date }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment_date">Payment Date</label>
+                    <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ ar.payment_date|date:'Y-m-d' }}">
+                </div>
+                <div class="form-group">
+                    <label for="payment_method">Payment Method</label>
+                    <select class="form-control" id="payment_method" name="payment_method" required>
+                        {% for method in ar.PAYMENT_METHOD_CHOICES %}
+                        <option value="{{ method.0 }}" {% if method.0 == ar.payment_method %}selected{% endif %}>{{ method.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select class="form-control" id="status" name="status" required>
+                        {% for status_choice in ar.STATUS_CHOICES %}
+                        <option value="{{ status_choice.0 }}" {% if status_choice.0 == ar.status %}selected{% endif %}>{{ status_choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea class="form-control" id="notes" name="notes">{{ ar.notes }}</textarea>
+                </div>
+            </div>
+            <div class="col-md-12 mt-4">
+                <div class="buttons">
+                    <button type="submit" class="btn btn-sm btn-primary mr-2">Update</button>
+                    <a href="{% url 'stock' %}" class="btn btn-sm btn-danger">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const invoiceSelect = document.getElementById('invoice');
+        const amountPaidField = document.getElementById('amount_paid');
+
+        invoiceSelect.addEventListener('change', updateInvoiceDetails);
+        amountPaidField.addEventListener('input', calculateBalance);
+
+        function updateInvoiceDetails() {
+            const selectedOption = invoiceSelect.options[invoiceSelect.selectedIndex];
+            const customerNameField = document.getElementById('customer_name');
+            const totalAmountField = document.getElementById('total_amount');
+            const dueDateField = document.getElementById('due_date');
+
+            if (selectedOption.value) {
+                const firstName = selectedOption.getAttribute('data-firstname');
+                const lastName = selectedOption.getAttribute('data-lastname');
+                const totalAmount = selectedOption.getAttribute('data-totalamount');
+                const dueDate = selectedOption.getAttribute('data-duedate');
+
+                customerNameField.value = `${firstName} ${lastName}`;
+                totalAmountField.value = totalAmount;
+                dueDateField.value = dueDate;
+
+                calculateBalance(); // Recalculate balance when invoice details change
+            } else {
+                customerNameField.value = '';
+                totalAmountField.value = '';
+                dueDateField.value = '';
+            }
+        }
+
+        function calculateBalance() {
+            const totalAmount = parseFloat(document.getElementById('total_amount').value) || 0;
+            const amountPaid = parseFloat(amountPaidField.value) || 0;
+            document.getElementById('balance_due').value = (totalAmount - amountPaid).toFixed(2);
+        }
+    });
+</script>
+{% endblock %}
+

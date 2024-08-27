@@ -19,22 +19,17 @@ body {
     padding: 10px;
 }
 .table-container {
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
     overflow-x: auto;
-    width: calc(100% - 9%); 
-    border: 1px solid #ffffff;
-    border-radius: 10px;
+    width: calc(100% - 7%); 
+    
     padding: 20px;
-    background-color: #eff5f7;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
     font-size: smaller;
     position: relative;
-    margin-left: 1%; 
-    margin-right: auto; 
+    
     margin-bottom: 15px;
-    top: 50px;
+    
 }
 
 .table-container th,
@@ -171,6 +166,11 @@ body {
     color: #ffffff;
     background-color: #264f36;
 }
+.dataTables_filter {
+    float: right;
+    text-align: left;
+    margin-right: 10px;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -210,7 +210,7 @@ body {
                           <th>Category</th>
                           <th>Product Name</th>
                           <th>SKU / Unit</th>
-                          <th>Availability</th>
+                          {% comment %} <th>Availability</th> {% endcomment %}
                           <th>Actions</th>
                       </tr>
                   </thead>
@@ -225,11 +225,11 @@ body {
                           <td>{{ product.category.name }}</td>
                           <td>{{ product.product_name }}</td>
                           <td>{{ product.sku }}</td>
-                          <td>
+                          {% comment %} <td>
                               <div class="progress">
                                   <div class="progress-bar bg-success" role="progressbar" style="width: 80%;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">80%</div>
                               </div>
-                          </td>
+                          </td> {% endcomment %}
                           <td>
                               <div class="action-buttons">
                                   <a href="{% url 'edit_product' product.product_id %}">

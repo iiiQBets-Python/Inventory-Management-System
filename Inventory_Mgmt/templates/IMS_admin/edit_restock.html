@@ -1,0 +1,168 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} Edit Stock {% endblock %}
+{% block styles %}
+
+<style>
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+    padding-left: 1.5%;
+  }
+
+  .form-control {
+    border-radius: 5px;
+    height: 40px; 
+    border: 1px solid #dfcdcd; 
+    background-color: #ffffff;
+    transition: border-color 0.2s ease-in-out; 
+  }
+
+  .form-control:hover {
+    border-color: #4e7454;
+  }
+  .form-control:focus {
+    background-color: #f2f2f2; 
+    border-color: #4e7454; 
+  }
+
+  .container {
+    margin-top: 50px; 
+    width: 80%;
+    left: 200px;
+    
+    padding: 20px;
+    
+  }
+
+  .custom-header {
+    text-align: center;
+    color: #264f36;
+    margin-bottom: 30px;
+  }
+
+  select {
+    width: 100%;
+    height: 40px; 
+  }
+
+  .custom-file-label {
+    border: 2px solid #ced4da; 
+    border-radius: 5px; 
+    padding: 8px 12px; 
+    cursor: pointer; 
+  }
+
+  .custom-file-label:hover {
+    background-color: #c6d8ea; 
+  }
+
+  .section-title {
+    font-size: 1.2em;
+    color: #000000; 
+    background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+    padding-bottom: 10px; 
+    padding-top: 1.5%;
+    
+    margin-bottom: 20px; 
+    box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+    text-align: center;
+  }
+
+  .image-container {
+    text-align: center;
+    padding-top: 2%;
+  }
+
+  .drag-drop-area {
+    height: 130px;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .upload-label {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    padding-left: 1.5%;
+  }
+
+  .buttons {
+    margin-left: -15px;
+    text-align:center;
+  }
+
+  .table td, .table th {
+    border-top: none;
+    padding-right: 1.5%;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    
+    <form id="editRestockForm" method="POST" action="{% url 'edit_restock' restock.id %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="section-title">Edit Re-Stock</h4>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="warehouse_id">Warehouse</label>
+                    <select class="form-control" id="warehouse_id" name="warehouse_id" required>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}" {% if warehouse.id == restock.warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="purchase_order">Purchase Order</label>
+                    <select class="form-control" id="purchase_order" name="purchase_order" required>
+                        {% for order in purchase_orders %}
+                        <option value="{{ order.id }}" {% if order.id == restock.purchase_order.id %}selected{% endif %}>{{ order.id }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product_id">Product Name</label>
+                    <select class="form-control" id="product_id" name="product_id" required>
+                        {% for product in products %}
+                        <option value="{{ product.product_id }}" {% if product.product_id == restock.product.id %}selected{% endif %}>{{ product.product_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>                
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="quantity_added">Quantity Added</label>
+                    <input type="number" class="form-control" id="quantity_added" name="quantity_added" value="{{ restock.quantity_added }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee_id">Added By</label>
+                    <select class="form-control" id="employee_id" name="employee_id" required>
+                        {% for employee in employees %}
+                        <option value="{{ employee.id }}" {% if employee.id == restock.restocked_by.id %}selected{% endif %}>{{ employee.First_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="restocked_on">Re-Stock Date</label>
+                    <input type="date" class="form-control" id="restocked_on" name="restocked_on" value="{{ restock.restocked_on|date:"Y-m-d" }}" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="buttons mt-4">
+            <button type="submit" class="btn btn-sm btn-primary mr-2">Update</button>
+            <a href="{% url 'stock' %}" class="btn btn-sm btn-danger">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+

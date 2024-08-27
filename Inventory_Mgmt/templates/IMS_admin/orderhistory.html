@@ -24,21 +24,19 @@
 }
 
    .card {
-    width: calc(100% - 9%);
-    border: 2px solid #040404cc;
-    border-radius: 10px;
+    width: calc(100% - 7%);
+    
     padding: 10px;
     padding-right: 10px; 
     margin-top: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+    
+    
 }
     .card-header p {
         margin-bottom: 5px;
         color: #171e17;
     }
-    .card-header {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.678); 
-    }
+  
     #totalTaxAmount,
     #totalAmount {
         background-color: #6f756f; 
@@ -78,13 +76,14 @@
                 <tr style="background-color: #808d80;">
                   <th>Sl. No</th>
                   <th class="description">Description</th>
+                  <th>Qty</th>
                   <th>Unit Price</th>
                   <th>Discount(%)</th>
-                  <th>Qty</th>
-                  <th>Net Amount</th>
-                  <th>Tax Rate(%)</th>
                   <th>Tax Type</th>
-                  <th>Tax Amount</th>
+                  
+                  <th>Tax Rate(%)</th>
+                  
+                  
                   <th>Total Amount</th> 
               </tr>              
               </thead>
@@ -92,13 +91,14 @@
                 <tr>
                   <td>{{ forloop.counter }}</td>
                   <td class="description">{{ order_detail.product.product_name }} - {{ order_detail.product.description }}</td>
+                  <td>{{ order_detail.quantity }}</td>
                   <td>₹{{ order_detail.unit_price }}</td>
                   <td>{{ order_detail.discount }}</td>
-                  <td>{{ order_detail.quantity }}</td>
-                  <td>₹{{ order_detail.net_amount }}</td>
-                  <td>{{ order_detail.tax_rate }}</td>
                   <td>{{ order_detail.tax_type }}</td>
-                  <td>₹{{ order_detail.tax_amount }}</td>
+                  
+                  <td>{{ order_detail.tax_rate }}</td>
+                  
+                  
                   
                   <td class="net-total">₹{{ order_detail.total_amount }}</td>
                   {% endfor %}
@@ -108,8 +108,8 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <td colspan="8" class="text-right">Total:</td>
-                  <td id="totalTaxAmount">₹0.00</td>
+                  <td colspan="7" class="text-right">Total:</td>
+                  
                   <td id="totalAmount">₹0.00</td>
                 </tr>
                 <tr>
@@ -140,27 +140,39 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
     $(document).ready(function() {
-      calculateTotal();
-
-      function calculateTotal() {
-        var totalAmount = 0;
-        var totalTaxAmount = 0;
-        $('#invoiceTable tbody tr').each(function() {
-          var netTotal = parseFloat($(this).find('.net-total').text().replace('₹', ''));
-          totalAmount += netTotal;
-
-          var taxAmount = parseFloat($(this).find('td:nth-child(9)').text().replace('₹', ''));
-          totalTaxAmount += taxAmount;
-        });
-        $('#totalTaxAmount').text('₹' + totalTaxAmount.toFixed(2));
-        $('#totalAmount').text('₹' + totalAmount.toFixed(2));
-        updateTotalInWords(totalAmount);
+      calculateTotals();
+  
+      function calculateTotals() {
+          let totalAmount = 0;
+          let totalTax = 0;
+          $('#invoiceTable tbody tr').each(function() {
+              const unitPrice = parseFloat($(this).find('td:nth-child(4)').text().replace('₹', ''));
+              const qty = parseInt($(this).find('td:nth-child(3)').text());
+              const discountPercent = parseFloat($(this).find('td:nth-child(5)').text());
+              const taxRate = parseFloat($(this).find('td:nth-child(7)').text());
+  
+              let subtotal = unitPrice * qty;
+              let discountAmount = subtotal * (discountPercent / 100);
+              let taxableAmount = subtotal - discountAmount;
+              let taxAmount = taxableAmount * (taxRate / 100);
+              let totalRowAmount = taxableAmount + taxAmount;
+  
+              totalTax += taxAmount;
+              totalAmount += totalRowAmount;
+  
+              $(this).find('td:last').text(`₹${totalRowAmount.toFixed(2)}`);
+          });
+  
+          $('#totalTaxAmount').text(`₹${totalTax.toFixed(2)}`);
+          $('#totalAmount').text(`₹${totalAmount.toFixed(2)}`);
+  
+          updateTotalInWords(totalAmount);
       }
-
+  
       function updateTotalInWords(amount) {
-        var words = convertToIndianCurrency(Math.floor(amount));
-        $('#totalInWords').text(words.charAt(0).toUpperCase() + words.slice(1) + ' only.');
-    }
+          const words = convertToIndianCurrency(Math.floor(amount));
+          $('#totalInWords').text(`${words.charAt(0).toUpperCase() + words.slice(1)} only.`);
+      }
 
        // Function to convert number to Indian currency text format
        function convertToIndianCurrency(number) {

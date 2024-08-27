@@ -16,24 +16,17 @@ body {
 }
 
 .card-container {
-    padding: 10px; 
+    
 }
 .table-container {
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     overflow-x: auto;
-    width: calc(100% - 9%); 
-    border: 1px solid #ffffff;
-    border-radius: 10px;
+    width: calc(100% - 7%); 
+    
     padding: 20px;
-    background-color: #eff5f7;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
     font-size: smaller;
     position: relative;
-    margin-left: 1%; 
-    margin-right: auto; 
-    margin-bottom: 15px;
+    
 }
 
 .table-container th,
@@ -116,8 +109,10 @@ body {
 }
 
 .search-input {
-    font-size: 12px; 
+    font-size: 12px;
+
 }
+
 
 .btn-primary {
     font-size: 12px;
@@ -169,6 +164,11 @@ body {
 .btn-sm:hover {
     color: #ffffff;
     background-color: #264f36;
+}
+.dataTables_filter {
+    float: right;
+    text-align: left;
+    margin-right: 10px;
 }
 </style>
 {% endblock %}
@@ -293,6 +293,7 @@ $(document).ready(function() {
     var table = $('#myTable').DataTable({
         searching: true, // Enable searching
         lengthMenu: [5, 10, 25, 50, 100], 
+        
         buttons: [
             {
                 extend: 'copy',

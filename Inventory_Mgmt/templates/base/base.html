@@ -52,7 +52,7 @@
         </div>
     </nav>
 
-    <div class="profile-sidebar" id="profileSidebar">
+    <div class="profile-sidebar" id="profileSidebar" >
         <div class="profile-header">
             <span class="close-sidebar" onclick="closeSidebar('profileSidebar')">&times;</span>
             <h5><strong>Profile</strong></h5>
@@ -60,17 +60,17 @@
         <div class="profile-body">
             <div class="profile-img">
                 <img src="{% static 'images/profile.png' %}" id="profile-icon">
-                <h4>{{ emp.First_name }}</h4>
+                <h4>{{ emp.first_name }}</h4>
             </div>
             <div>
-                <p><strong>User ID:</strong>{{ emp.id }}</p>
-                <p><strong>Email ID:</strong> {{ emp.email }}</p>
+                <p><strong>User ID:</strong>{{ emp.userid }}</p>
+                <p><strong>Email ID:</strong> {{ emp.emailid }}</p>
                 <p><strong>Department:</strong> {{ emp.department }}</p>
                 <p><strong>Mobile No:</strong> {{ emp.phone_number }}</p>
             </div>
         </div>
         <div class="profile-footer">
-            <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">Logout</a>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
         </div>
     </div>
 
@@ -119,6 +119,7 @@
                 <ul class="submenu">
                     <li><a href="{%  url 'departments' %}" class="submenu-item"><i class="fas fa-cogs"></i><span class="menu-text">Department</span></a></li>
                     <li><a href="{%  url 'employees' %}" class="submenu-item"><i class="fas fa-users"></i><span class="menu-text">Employee</span></a></li>
+                    <li><a href="{% url 'warehouses' %}" class="submenu-item"><i class="fas fa-warehouse"></i><span class="menu-text">WareHouse</span></a></li>
                     <li><a href="{% url 'customers' %}" class="submenu-item"><i class="fas fa-users"></i><span class="menu-text">Customers</span></a></li>
                     <li><a href="{% url 'suppliers' %}" class="submenu-item"><i class="fas fa-industry"></i><span class="menu-text">Suppliers</span></a></li>
                 </ul>
@@ -129,7 +130,18 @@
                     <li><a href="{% url 'category' %}" class="submenu-item"><i class="fas fa-list"></i><span class="menu-text">Categories</span></a></li>
                     <li><a href="{% url 'brands' %}" class="submenu-item"><i class="fas fa-tag"></i><span class="menu-text">Brands</span></a></li>
                     <li><a href="{% url 'products' %}" class="submenu-item"><i class="fas fa-cubes"></i><span class="menu-text">Products</span></a></li>
-                    <li><a href="{% url 'stock' %}" class="submenu-item"><i class="fas fa-clipboard-list"></i><span class="menu-text">Stock Control</span></a></li>
+                    
+                </ul>
+            </li>
+            <li>
+                <a href="#" class="menu-item"><i class="fas fa-warehouse"></i><span class="menu-text">Warehouse</span></a>
+                <ul class="submenu">
+                    <li><a href="{% url 'stock' %}" class="submenu-item"><i class="fas fa-boxes"></i><span class="menu-text">Stocks</span></a></li>
+                    <li><a href="{% url 'restock_table' %}" class="submenu-item"><i class="fas fa-sync-alt"></i><span class="menu-text">Restock</span></a></li>
+                    <li><a href="{% url 'stock_transfer_request_table' %}" class="submenu-item"><i class="fas fa-exchange-alt"></i><span class="menu-text">Stock Request</span></a></li>
+                    <li><a href="{% url 'stock_transfer_send_table' %}" class="submenu-item"><i class="fas fa-truck-loading"></i><span class="menu-text">Stock Transfer</span></a></li>
+                    <li><a href="{% url 'stock_transfer_received_table' %}" class="submenu-item"><i class="fas fa-dolly-flatbed"></i><span class="menu-text">Stock Receive</span></a></li>
+                    <li><a href="{% url 'low_stock_alerts' %}" class="submenu-item"><i class="fas fa-bell"></i><span class="menu-text">Low Stocks</span></a></li>
                 </ul>
             </li>
             <li>
@@ -142,17 +154,10 @@
             <li>
                 <a href="#" class="menu-item"><i class="fas fa-receipt"></i><span class="menu-text">Purchases</span></a>
                 <ul class="submenu">
-                    <li><a href="{% url 'purchase_orders' %}" class="submenu-item"><i class="fas fa-clipboard-list"></i><span class="menu-text">Manage Purchase Orders</span></a></li>
+                    <li><a href="{% url 'purchase_orders' %}" class="submenu-item"><i class="fas fa-file-invoice"></i><span class="menu-text">Purchase Orders</span></a></li>
                 </ul>
             </li>
-            <li>
-                <a href="#" class="menu-item"><i class="fas fa-warehouse"></i><span class="menu-text">Warehouse</span></a>
-                <ul class="submenu">
-                    <li><a href="{% url 'warehouse_locations' %}" class="submenu-item"><i class="fas fa-map-marker-alt"></i><span class="menu-text">Manage Locations</span></a></li>
-                    <li><a href="{% url 'warehouse_stock' %}" class="submenu-item"><i class="fas fa-boxes"></i><span class="menu-text">Manage Stock</span></a></li>
-                    <li><a href="{% url 'low_stock_alerts' %}" class="submenu-item"><i class="fas fa-exclamation-triangle"></i><span class="menu-text">Low Stock Alerts</span></a></li>
-                </ul>
-            </li>
+
             <li>
                 <a href="#" class="menu-item"><i class="fas fa-dollar-sign"></i><span class="menu-text">Accounts</span></a>
                 <ul class="submenu">

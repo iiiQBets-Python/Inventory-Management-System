@@ -1,0 +1,184 @@
+{% include 'base/base.html' %}
+{% load static %}
+
+{% block title %}Stock Transfer Send{% endblock %}
+
+{% block styles %}
+<style>
+  body {
+    padding-left: 250px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    border-radius: 5px;
+    height: 40px;
+    border: 1px solid #dfcdcd;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease-in-out;
+  }
+
+  .form-control:hover {
+    border-color: #4e7454;
+  }
+
+  .form-control:focus {
+    background-color: #f2f2f2;
+    border-color: #4e7454;
+  }
+
+  .container {
+    margin: 80px 20px 30px 0px;
+    padding-top: 50px;
+    width: 100%;
+    
+    padding: 20px;
+    
+  }
+
+  .custom-header {
+    text-align: center;
+    color: #264f36;
+    margin-bottom: 30px;
+  }
+
+  .section-title {
+    font-size: 1.2em;
+    color: #000000;
+    background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+    padding-bottom: 10px;
+    padding-top: 1.5%;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+    padding-left: 5%;
+    text-align: center;
+  }
+
+  .buttons {
+    text-align: center;
+  }
+
+  .error {
+    color: red;
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <form id="transfer-request-form" method="post" action="{% url 'stock_transfer_send' %}">
+    {% csrf_token %}
+    <h4 class="section-title">Stock Transfer</h4>
+    <div class="form-group">
+      <label for="transfer_request_id">Select Transfer Request</label>
+      <select id="transfer_request_id" name="transfer_request_id" class="form-control" required>
+        <option value="">-- Select Request --</option>
+        {% for request in transfer_requests %}
+          <option value="{{ request.id }}">
+            Request ID: {{ request.id }} | Product: {{ request.product.product_name }} | From: {{ request.source_warehouse.name }} to {{ request.destination_warehouse.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- The following part of the form should only display after a request is selected -->
+    <div id="transfer-details" style="display:none;">
+      <h4 class="section-title">Transfer Details</h4>
+      <div class="form-group">
+        <label for="request_date">Request Date</label>
+        <input type="text" class="form-control" id="request_date" name="request_date" readonly>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="source_warehouse">Source Warehouse</label>
+            <input type="text" class="form-control" id="source_warehouse" name="source_warehouse" readonly>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="destination_warehouse">Destination Warehouse</label>
+            <input type="text" class="form-control" id="destination_warehouse" name="destination_warehouse" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="product_name">Product</label>
+            <input type="text" class="form-control" id="product_name" name="product_name" readonly>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="quantity_requested">Quantity Requested</label>
+            <input type="number" class="form-control" id="quantity_requested" name="quantity_requested" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="quantity_sent">Quantity Sent</label>
+        <input type="number" class="form-control" id="quantity_sent" name="quantity_sent" min="1" required>
+      </div>
+
+      <div class="buttons mt-4">
+        <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
+        <button type="reset" class="btn btn-sm btn-danger">Clear</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  document.getElementById('transfer_request_id').addEventListener('change', function() {
+    var selectedRequest = this.value;
+
+    // Define the request details object
+    var requestDetails = {
+      {% for request in transfer_requests %}
+      "{{ request.id }}": {
+        "request_date": "{{ request.request_date|date:"d-m-Y" }}",  // Adjusted date format for consistency
+        "source_warehouse": "{{ request.source_warehouse.name }}",
+        "destination_warehouse": "{{ request.destination_warehouse.name }}",
+        "product_name": "{{ request.product.product_name }}",
+        "quantity_requested": "{{ request.quantity }}"
+      },
+      {% endfor %}
+    };
+
+    if (selectedRequest) {
+      // Extract details for the selected request
+      var details = requestDetails[selectedRequest];
+
+      // Display the transfer details section
+      document.getElementById('transfer-details').style.display = 'block';
+
+      // Populate the form fields
+      document.getElementById('request_date').value = details.request_date;
+      document.getElementById('source_warehouse').value = details.source_warehouse;
+      document.getElementById('destination_warehouse').value = details.destination_warehouse;
+      document.getElementById('product_name').value = details.product_name;
+      document.getElementById('quantity_requested').value = details.quantity_requested;
+      document.getElementById('quantity_sent').setAttribute('max', details.quantity_requested);
+    } else {
+      // Hide the transfer details section if no request is selected
+      document.getElementById('transfer-details').style.display = 'none';
+    }
+  });
+</script>
+
+{% endblock %}

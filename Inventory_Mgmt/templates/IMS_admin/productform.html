@@ -30,14 +30,10 @@
     }
 
     .container {
-    margin-top: 100px; 
+    margin-top: 50px; 
     width: 80%;
-    left: 200px;
-    border: 2px solid #fffefe;
+    left: 200px;border: 2px solid #fffefe;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-    background-color: #ffffff;
   }
 
     .custom-header {
@@ -70,7 +66,8 @@
       padding-top: 1.5%;
       margin-bottom: 20px; 
       box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-      padding-left: 12%;
+      padding-left: 5%;
+      text-align: center;
     }
 
     .image-container {
@@ -93,15 +90,17 @@
 
     .buttons {
       margin-left: -15px;
+      text-align:center;
     }
 
   </style>
 {% endblock %}
 {% block content %}
 <div class="container">
-  <h3 class="custom-header">Add Product</h3>
+  
   <form method="POST" action="{% url 'add_products' %}" enctype="multipart/form-data">
     {% csrf_token %}
+    <h3 class="section-title">Add Product</h3>
     <div class="row">
       <div class="col-md-4">
         <h4 class="section-title">Product Information</h4>
@@ -193,16 +192,8 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="upc">UPC</label>
-          <input type="text" class="form-control" id="upc" name="upc" maxlength="12" placeholder="Universal Product Code">
-        </div>
-        <div class="form-group">
-          <label for="ean">EAN</label>
-          <input type="text" class="form-control" id="ean" name="ean" maxlength="13" placeholder="European Article Number">
-        </div>
-        <div class="form-group">
-          <label for="mpn">MPN</label>
-          <input type="text" class="form-control" id="mpn" name="mpn" maxlength="50" placeholder="Manufacturer Part Number">
+          <label for="hsn">HSN Code</label>
+          <input type="text" class="form-control" id="hsn" name="hsn" maxlength="12" placeholder="HSN code">
         </div>
       </div>
       <div class="col-md-4">
@@ -295,7 +286,7 @@
     document.getElementById("selling_price").value = "";
     document.getElementById("supplier_name").value = "";
     document.getElementById("brand_name").value = "";
-    document.getElementById("upc").value = "";
+    document.getElementById("hsn").value = "";
     document.getElementById("ean").value = "";
     document.getElementById("mpn").value = "";
     document.getElementById("description").value = "";

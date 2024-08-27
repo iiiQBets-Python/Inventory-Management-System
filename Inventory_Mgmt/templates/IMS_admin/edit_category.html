@@ -32,15 +32,13 @@
   }
 
   .container {
-    margin: 100px auto 30px; 
+    margin: 100px auto 30px 350px; 
     padding-top: 50px; 
     width: 90%;
     max-width: 1000px;
-    border: 2px solid #fffefe;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-    background-color: #fdfbfb;
+   
+    padding: 50px;
+    
   }
 
   .custom-header {
@@ -73,7 +71,7 @@
     padding-top: 1.5%;
     margin-bottom: 20px; 
     box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-    padding-left: 5%;
+    
     text-align: center;
   }
 
@@ -125,7 +123,7 @@
 </head>
 <body>
   <div class="container">
-    <h3 class="custom-header">Category Form</h3>
+   
     <form method="post" action="{% url 'edit_category' id=category.id %}">
       {% csrf_token %}
       <h4 class="section-title"> Add Category</h4>

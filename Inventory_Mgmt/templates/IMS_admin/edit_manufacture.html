@@ -42,14 +42,12 @@
       background-color: #e3e3e3;
     } */
     .container {
-    margin-top: 100px; 
+    margin-top:50px; 
     width: 80%;
     left: 200px;
-    border: 2px solid #fffefe;
+    
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-    background-color: #ffffff;
+    
   }
     .custom-header {
       text-align: center;
@@ -81,7 +79,8 @@
       padding-top: 1.5%;
       margin-bottom: 20px; 
       box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-      padding-left: 12%;
+      
+      text-align:center;
     }
 
     .image-container {
@@ -104,6 +103,7 @@
 
     .buttons {
       margin-left: -15px;
+      text-align:center;
     }
 
     @media (max-width: 768px) {
@@ -128,7 +128,7 @@
 </head>
 <body>
   <div class="container">
-    <h3 class="custom-header">Manufacturer Details</h3>
+    <h3 class="section-title">Edit Supplier</h3>
     <form method="post" action="{% url 'edit_manufacture' id=manufacture.id %}">
       {% csrf_token %}
       <div class="row">
@@ -136,15 +136,15 @@
               <h4 class="section-title">Personal Information</h4>
               <div class="form-group">
                   <label for="manufacturer_name">Company Name</label>
-                  <input type="text" class="form-control" id="manufacturer_name" name="manufacturer_name" value="{{ manufacture.Company_Name }}" readonly>
+                  <input type="text" class="form-control" id="manufacturer_name" name="manufacturer_name" value="{{ manufacture.name }}" readonly>
               </div>               
               <div class="form-group">
                   <label for="manufacturer_email">Email-ID</label>
-                  <input type="email" class="form-control" id="manufacturer_email" name="manufacturer_email" value="{{ manufacture.email }}" required>
+                  <input type="email" class="form-control" id="manufacturer_email" name="Supplier_email" value="{{ manufacture.email }}" required>
               </div>
               <div class="form-group">
                   <label for="manufacturer_contact">Contact Number</label>
-                  <input type="tel" class="form-control" id="manufacturer_contact" name="manufacturer_contact" value="{{ manufacture.contact_number }}" required>
+                  <input type="tel" class="form-control" id="manufacturer_contact" name="Supplier_contact" value="{{ manufacture.contact_number }}" required>
               </div>
               <div class="form-group">
                   <label for="gstin_number">GSTIN Number</label>
@@ -156,7 +156,7 @@
               </div>
               <div class="form-group">
                   <label for="manufacturer_address">Address</label>
-                  <input type="text" class="form-control" id="manufacturer_address" name="manufacturer_address" style="height: 64px; text-align: top;" value="{{ manufacture.address }}" required>
+                  <input type="text" class="form-control" id="manufacturer_address" name="Supplier_address" style="height: 64px; text-align: top;" value="{{ manufacture.address }}" required>
               </div>                
           </div>
   

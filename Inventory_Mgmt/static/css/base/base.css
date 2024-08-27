@@ -199,26 +199,47 @@ body {
   font-size: 13px;
 }
 
-.profile-header {
-  border-radius: 10px, 0px, 0px, 0px;
-  background-image: linear-gradient(62deg, #c0fff0 0%, #f8c9ff 100%);
+.profile-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 350px;
+  height: calc(100vh - 30vh); /* Adjust height based on available space */
+  position: fixed;
+  top: 65px;
+  right: -350px; /* Initially hidden off-screen */
+  background-color: #f6f6f6;
+  transition: right 0.5s ease;
+  z-index: 999;
+  box-shadow: 10px 20px px rgba(65, 65, 65, 0.1);
+  border-radius: 10px;
   padding: 20px;
-  margin-bottom: 10px;
-  font-weight: 400px;
-  border-bottom: 1px solid rgb(92, 92, 92);
+  background-image: linear-gradient(62deg, #c0fff0 0%, #f8c9ff 100%);
+}
+
+.profile-header {
+  padding-bottom: 20px;
 }
 
 .profile-body {
-  width: 100%;
-  max-height: 100%;
-  padding: 20px;
-  border-bottom: 1px solid rgb(92, 92, 92);
+  flex: 1; /* Allow this section to grow and fill available space */
+  padding-bottom: 10px;
 }
 
 .profile-footer {
-  margin-left: 70%;
-  padding: 20px;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
 }
+
+.profile-footer .btn {
+  font-size: 16px;
+  padding: 5px;
+  width: 30%; /* Make the button span the full width */
+  max-width: 200px; /* Ensures button does not stretch too much */
+  display: inline-block;
+}
+
 
 .profile-footer a {
   color: rgb(0, 0, 0);

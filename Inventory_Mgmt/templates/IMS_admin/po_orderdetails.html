@@ -1,0 +1,190 @@
+{% include 'base\base.html' %}
+
+{% load static %}
+{% block title %} Products {% endblock %}
+{% block styles %}
+<style> 
+    .table th, .table td {
+        font-size: small;
+        color: #000000;
+        border-color: #000000; 
+    }
+    .table th.description {
+        font-size: small;
+        width: 30%;
+    }
+    .total-amount {
+        font-weight: bold;
+        color: #0f5311;
+    }
+    .card-container {
+    padding: 10px; 
+    display: flex;
+    justify-content: center;
+}
+
+   .card {
+    width: calc(100% - 9%);
+    border: 2px solid #040404cc;
+    border-radius: 10px;
+    padding: 10px;
+    padding-right: 10px; 
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+}
+    .card-header p {
+        margin-bottom: 5px;
+        color: #171e17;
+    }
+    .card-header {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.678); 
+    }
+    #totalTaxAmount,
+    #totalAmount {
+        background-color: #6f756f; 
+        color: #fff; 
+        padding: 5px 10px;
+    }
+
+    .card-body {
+        overflow: auto;
+    }
+    .float-right {
+        float: right;
+        padding-right: 20px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <div class="float-right">
+              <p><small><strong>Order Number:</strong> PO-{{ order.id }}</small></p>
+              <p><small><strong>Supplier:</strong> {{ order.supplier.name }}</small></p>
+              <p><small><strong>Order Date:</strong> {{ order.order_date }}</small></p>
+              <p><small><strong>Expected Delivery Date:</strong> {{ order.expected_delivery_date }}</small></p>
+              <p><small><strong>Status:</strong> {{ order.status }}</small></p>
+          </div>
+          </div>
+          <hr>
+          <div class="card-body">
+            <table class="table table-bordered" id="purchaseOrderTable">
+              <thead>
+                <tr style="background-color: #808d80;">
+                  <th>Sl. No</th>
+                  <th>Description</th>
+                  <th>Qty</th>
+                  <th>Unit Price</th>
+                  <th>Total Price</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for item in order_details %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ item.product.product_name }} - {{ item.product.description }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>₹{{ item.unit_price }}</td>
+                  <td>₹{{ item.total_price }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="text-right">Total:</td>
+                  <td>₹{{ order.total_amount }}</td>
+                </tr>
+                <tr>
+                  <td colspan="5" class="text-left">Notes: {{ order.notes }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      calculateTotals();
+  
+      function calculateTotals() {
+          let totalAmount = 0;
+          let totalTax = 0;
+          $('#invoiceTable tbody tr').each(function() {
+              const unitPrice = parseFloat($(this).find('td:nth-child(4)').text().replace('₹', ''));
+              const qty = parseInt($(this).find('td:nth-child(3)').text());
+              const discountPercent = parseFloat($(this).find('td:nth-child(5)').text());
+              const taxRate = parseFloat($(this).find('td:nth-child(7)').text());
+  
+              let subtotal = unitPrice * qty;
+              let discountAmount = subtotal * (discountPercent / 100);
+              let taxableAmount = subtotal - discountAmount;
+              let taxAmount = taxableAmount * (taxRate / 100);
+              let totalRowAmount = taxableAmount + taxAmount;
+  
+              totalTax += taxAmount;
+              totalAmount += totalRowAmount;
+  
+              $(this).find('td:last').text(`₹${totalRowAmount.toFixed(2)}`);
+          });
+  
+          $('#totalTaxAmount').text(`₹${totalTax.toFixed(2)}`);
+          $('#totalAmount').text(`₹${totalAmount.toFixed(2)}`);
+  
+          updateTotalInWords(totalAmount);
+      }
+  
+      function updateTotalInWords(amount) {
+          const words = convertToIndianCurrency(Math.floor(amount));
+          $('#totalInWords').text(`${words.charAt(0).toUpperCase() + words.slice(1)} only.`);
+      }
+
+       // Function to convert number to Indian currency text format
+       function convertToIndianCurrency(number) {
+            const numberWords = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+                                "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+            const tensWords = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+            if (number === 0) {
+                return "Zero";
+            }
+
+            if (number < 20) {
+                return numberWords[number];
+            }
+
+            if (number < 100) {
+                return tensWords[Math.floor(number / 10)] + (number % 10 !== 0 ? " " + numberWords[number % 10] : "");
+            }
+
+            if (number < 1000) {
+                return numberWords[Math.floor(number / 100)] + " Hundred" + (number % 100 !== 0 ? " " + convertToIndianCurrency(number % 100) : "");
+            }
+
+            if (number < 100000) {
+                return convertToIndianCurrency(Math.floor(number / 1000)) + " Thousand" + (number % 1000 !== 0 ? " " + convertToIndianCurrency(number % 1000) : "");
+            }
+
+            if (number < 10000000) {
+                return convertToIndianCurrency(Math.floor(number / 100000)) + " Lakh" + (number % 100000 !== 0 ? " " + convertToIndianCurrency(number % 100000) : "");
+            }
+
+            if (number < 1000000000) {
+                return convertToIndianCurrency(Math.floor(number / 10000000)) + " Crore" + (number % 10000000 !== 0 ? " " + convertToIndianCurrency(number % 10000000) : "");
+            }
+
+            return "Number too large";
+        }
+    });
+  </script>
+{% endblock %}

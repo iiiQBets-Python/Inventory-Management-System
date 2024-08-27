@@ -1,0 +1,160 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} Re-Stock Products {% endblock %}
+{% block styles %}
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        font-weight: bold;
+        padding-left: 1.5%;
+    }
+    .form-control {
+        border-radius: 5px;
+        height: 40px;
+        border: 1px solid #dfcdcd;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease-in-out;
+    }
+    .form-control:hover {
+        border-color: #4e7454;
+    }
+    .form-control:focus {
+        background-color: #f2f2f2;
+        border-color: #4e7454;
+    }
+    .container {
+        margin-top: 50px;
+        width: 80%;
+        
+        padding: 20px;
+        
+    }
+    .custom-header {
+        text-align: center;
+        color: #264f36;
+        margin-bottom: 30px;
+    }
+    .section-title {
+        font-size: 1.2em;
+        color: #000000;
+        background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+        padding: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+        text-align: center;
+    }
+    .buttons {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <form id="stockupdateForm" method="POST" action="{% url 're_stock' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="section-title">Re-Stock Items</h4>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="warehouse_id">Warehouse</label>
+                    <select class="form-control" id="warehouse_id" name="warehouse_id" required onchange="filterPurchaseOrders()">
+                        <option value="">Select Warehouse</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="purchase_order">Purchase Order</label>
+                    <select class="form-control" id="purchase_order" name="purchase_order" required onchange="filterProducts()">
+                        <option value="">Select Purchase Order</option>
+                        {% for order in purchase_orders %}
+                        <option value="{{ order.id }}" data-warehouse="{{ order.warehouse_id }}">{{ order.id }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product_id">Product Name</label>
+                    <select class="form-control" id="product_id" name="product_id" required>
+                        <option value="">Select Product</option>
+                        {% for product in products %}
+                        <option value="{{ product.product_id }}">{{ product.product_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>                
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="quantity_added">Quantity Added</label>
+                    <input type="number" class="form-control" id="quantity_added" name="quantity_added" required>
+                </div>
+                <div class="form-group">
+                    <label for="employee_id">Added By</label>
+                    <select class="form-control" id="employee_id" name="employee_id" required>
+                        {% for employee in employees %}
+                        <option value="{{ employee.id }}">{{ employee.First_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="restocked_on">Re-Stock Date</label>
+                    <input type="date" class="form-control" id="restocked_on" name="restocked_on" value="{{ today|date:"Y-m-d" }}" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="buttons mt-4">
+            <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
+            <button type="button" class="btn btn-sm btn-danger" onclick="clearForm()">Clear</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function filterPurchaseOrders() {
+        const selectedWarehouse = document.getElementById('warehouse_id').value;
+        const purchaseOrders = document.querySelectorAll('#purchase_order option');
+        purchaseOrders.forEach(option => {
+            if (option.dataset.warehouse === selectedWarehouse || option.value === "") {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+        document.getElementById('purchase_order').value = "";
+    }
+
+    function filterProducts() {
+        const selectedOrder = document.getElementById('purchase_order').value;
+        const products = document.querySelectorAll('#product_name option');
+        products.forEach(option => {
+            if (option.dataset.order === selectedOrder || option.value === "") {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+            }
+        });
+        document.getElementById('product_name').value = "";
+    }
+
+    function clearForm() {
+        document.getElementById('stockupdateForm').reset();
+        filterPurchaseOrders();  // Reset the filters
+    }
+
+    function setCurrentDate() {
+        var today = new Date();
+        var date = today.getFullYear() + '-' + (today.getMonth() + 1).toString().padStart(2, '0') + '-' + today.getDate().toString().padStart(2, '0');
+        document.getElementById('restocked_on').value = date;
+    }
+    document.addEventListener('DOMContentLoaded', setCurrentDate);
+</script>
+{% endblock %}

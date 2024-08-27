@@ -46,7 +46,7 @@
             
         }
         #totalTaxAmount, #totalAmount {
-            background-color: #d3d3d3;
+            font-weight:bold;
         }
     </style>
 </head>
@@ -127,7 +127,7 @@
                         <th>Net Amount</th>
                         <th>Tax Rate</th>
                         <th>Tax Type</th>
-                        <th>Tax Amount</th>
+                        
                         <th>Total Amount</th>
                     </tr>
                 </thead>
@@ -142,7 +142,7 @@
                         <td>{{ item.net_amount }}</td>
                         <td>{{ item.tax_rate|default:"0" }}</td>
                         <td>{{ item.tax_type|default:"0" }}</td>
-                        <td>{{ item.tax_amount|default:"0" }}</td>
+                        
                         <td>{{ item.net_amount }}</td>
                     </tr>
                     {% endfor %}
@@ -150,8 +150,8 @@
                 <tfoot>
                     <tr>
                         <td colspan="8">Total:</td>
-                        <td id="totalTaxAmount">Rs.{{ total_tax_amount }}</td>
-                        <td id="totalAmount">Rs.{{ total_amount }}</td>
+                        
+                        <td id="totalAmount">Rs.{{ total_amount|floatformat:2 }}</td>
                     </tr>
                 </tfoot>
             </table>

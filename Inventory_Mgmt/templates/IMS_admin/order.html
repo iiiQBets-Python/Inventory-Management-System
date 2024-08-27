@@ -19,20 +19,15 @@ body {
     padding: 10px; 
 }
 .table-container {
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
     overflow-x: auto;
-    width: calc(100% - 9%); 
-    border: 1px solid #ffffff;
-    border-radius: 10px;
+    width: calc(100% - 7%); 
+    
     padding: 20px;
-    background-color: #eff5f7;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    
     font-size: smaller;
     position: relative;
-    margin-left: 1%; 
-    margin-right: auto; 
+    
     margin-bottom: 15px;
 }
 
@@ -170,6 +165,16 @@ body {
     color: #ffffff;
     background-color: #264f36;
 }
+
+.dataTables_filter {
+    float: right;
+    text-align: left;
+    margin-right: 10px;
+}
+
+.view-button{
+    border:none;
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -208,6 +213,7 @@ body {
                         <th></th>
                         <th>Order ID</th>
                         <th>Order Date</th>
+                        <th>Warehouse</th>
                         <th>Customer</th>
                         <th>Sales Person</th>
                         <th>View</th>
@@ -225,6 +231,7 @@ body {
                         </td>
                         <td>{{ order.id }}</td>
                         <td>{{ order.order_date }}</td>
+                        <td>{{ order.warehouse.name }}</td>
                         <td>{{ order.customer }}</td>
                         <td>{{ order.sales_employee }}</td>
                         

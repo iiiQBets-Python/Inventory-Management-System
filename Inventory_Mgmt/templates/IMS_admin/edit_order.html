@@ -1,3 +1,4 @@
+
 {% include 'base/base.html' %}
 {% load static %}
 {% block title %}Edit Order{% endblock %}
@@ -24,11 +25,9 @@
         margin-top: 60px;
         margin-bottom: 20px;
         width: calc(100% - 17%);
-        border: 2px solid #fffefe;
+        
         padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-        background-color: #ffffff;
+       
         overflow-y: auto;
         max-height: 600px;
     }
@@ -215,83 +214,178 @@
     }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <form method="post" action="{% url 'edit_order' order.id %}">
-                {% csrf_token %}
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Edit Order</h5>
+<div class="container">
+    <h3 class="custom-header">Edit Order</h3>
+    <form method="post" action="{% url 'edit_order' order.id %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="customer_id">Customer ID</label>
+                    <input type="text" name="customer_id" id="customer_id" class="form-control" value="{{ order.customer.customer_id }}" readonly>     
+                </div>
+                <div class="form-group">
+                    <label for="customer">Customer</label>
+                    <input type="text" name="customer" id="customer" class="form-control" value="{{ order.customer }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="customer_details">Customer Details</label>
+                    <textarea class="form-control" id="customer_details" name="customer_details" rows="3" readonly>email:{{ order.customer.email }} || phone number: {{ order.customer.mobile_no }} || Address: {{ order.customer.address }}</textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="sales_employee_id">Sales Employee ID</label>
+                    <input type="text" class="form-control" id="sales_employee_id" name="sales_employee_id" value="{{ order.sales_employee.id }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="sales_employee">Sales Employee</label>
+                    <input type="text" name="sales_employee" id="sales_employee" class="form-control" value="{{ order.sales_employee }}" readonly>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="warehouse_id">Warehouse</label>
+                    <select class="form-control" id="warehouse_id" name="warehouse_id" required>
+                        <option value="">Select Warehouse</option>
+                        {% for warehouse in warehouses %}
+                        <option value="{{ warehouse.id }}" {% if warehouse.id == order.warehouse_id %}selected{% endif %}>
+                            {{ warehouse.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="order_date">Order Date</label>
+                    <input type="date" name="order_date" id="order_date" class="form-control" value="{{ order.order_date|date:'Y-m-d' }}">
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="invoice_generated" name="invoice_generated" {% if order.invoice_generated %}checked{% endif %}>
+                    <label class="form-check-label" for="invoice_generated">Invoice Generated</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <h5 class="custom-header section-header header-align">Order Details</h5>
+                <div id="order-details">
+                    {% for detail in order_details %}
+                    <div class="order-detail-item">
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label for="product_{{ detail.id }}">Product</label>
+                                <select name="product_{{ detail.id }}" id="product_{{ detail.id }}" class="form-control">
+                                    {% for product in product %}
+                                    <option value="{{ product.product_id }}" {% if product.product_id == detail.product_id %}selected{% endif %}>{{ product.product_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="description_{{ detail.id }}">Description</label>
+                                <input type="text" name="description_{{ detail.id }}" id="description_{{ detail.id }}" class="form-control" value="{{ detail.product.description }}">
+                            </div>                            
+                            <div class="col-md-1">
+                                <label for="quantity_{{ detail.id }}">Quantity</label>
+                                <input type="number" name="quantity_{{ detail.id }}" id="quantity_{{ detail.id }}" class="form-control" value="{{ detail.quantity }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="unit_price_{{ detail.id }}">Unit Price</label>
+                                <input type="text" name="unit_price_{{ detail.id }}" id="unit_price_{{ detail.id }}" class="form-control" value="{{ detail.unit_price }}">
+                            </div>
+                            <div class="col-md-1">
+                                <label for="discount_{{ detail.id }}">Discount</label>
+                                <input type="text" name="discount_{{ detail.id }}" id="discount_{{ detail.id }}" class="form-control" value="{{ detail.discount }}">
+                            </div>
+                            <div class="col-md-1">
+                                <label for="tax_type_{{ detail.id }}">Tax Type</label>
+                                <select name="tax_type_{{ detail.id }}" id="tax_type_{{ detail.id }}" class="form-control">
+                                    <option value="GST" {% if detail.tax_type == 'GST' %}selected{% endif %}>GST</option>
+                                    <option value="VAT" {% if detail.tax_type == 'VAT' %}selected{% endif %}>VAT</option>
+                                    <option value="ST" {% if detail.tax_type == 'ST' %}selected{% endif %}>ST</option>
+                                    <option value="ET" {% if detail.tax_type == 'ET' %}selected{% endif %}>ET</option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <label for="tax_rate_{{ detail.id }}">Tax Rate</label>
+                                <input type="text" name="tax_rate_{{ detail.id }}" id="tax_rate_{{ detail.id }}" class="form-control" value="{{ detail.tax_rate }}">
+                            </div>
+                            <div class="col-md-2">
+                                <label for="subtotal_{{ detail.id }}">Subtotal</label>
+                                <input type="number" class="form-control subtotal" id="subtotal_{{ detail.id }}" name="subtotal_{{ detail.id }}" value="{{ detail.subtotal }}" readonly>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body">
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-8">
+                    
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group">
-                            <label for="customer">Customer:</label>
-                            <input type="text" name="customer" id="customer" class="form-control" value="{{ order.customer }}" >
-                        </div>
-                        <div class="form-group">
-                            <label for="sales_employee">Sales Employee:</label>
-                            <input type="text" name="sales_employee" id="sales_employee" class="form-control" value="{{ order.sales_employee }}" >
-                        </div>
-                        <div class="form-group">
-                            <label for="order_date">Sales Employee:</label>
-                            <input type="text" name="order_date" id="order_date" class="form-control" value="{{ order.order_date|date:'Y-m-d' }}" >
-                        </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="invoice_generated" name="invoice_generated" {% if order.invoice_generated %}checked{% endif %}>
-                            <label class="form-check-label" for="invoice_generated">Invoice Generated</label>
-                        </div>
-                        <hr>
-                        <h5>Order Details</h5>
-                        <div id="order-details">
-                            {% for detail in order_details %}
-                                <div class="order-detail-item">
-                                    <div class="row">
-                                        <div class="col-md-3">
-                                            <label for="product_{{ detail.id }}">Product:</label>
-                                            <input type="text" name="product_{{ detail.id }}" id="product_{{ detail.id }}" class="form-control" value="{{ detail.product }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="quantity_{{ detail.id }}">Quantity:</label>
-                                            <input type="number" name="quantity_{{ detail.id }}" id="quantity_{{ detail.id }}" class="form-control" value="{{ detail.quantity }}">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="description_{{ detail.id }}">Description:</label>
-                                            <input type="text" name="description_{{ detail.id }}" id="description_{{ detail.id }}" class="form-control" value="{{ detail.description }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="unit_price_{{ detail.id }}">Unit Price:</label>
-                                            <input type="text" name="unit_price_{{ detail.id }}" id="unit_price_{{ detail.id }}" class="form-control" value="{{ detail.unit_price }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="discount_{{ detail.id }}">Discount:</label>
-                                            <input type="text" name="discount_{{ detail.id }}" id="discount_{{ detail.id }}" class="form-control" value="{{ detail.discount }}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="tax_type_{{ detail.id }}">Tax Type:</label>
-                                            <select name="tax_type_{{ detail.id }}" id="tax_type_{{ detail.id }}" class="form-control">
-                                                {% for code, name in detail.TAX_TYPES %}
-                                                    <option value="{{ code }}" {% if detail.tax_type == code %}selected{% endif %}>{{ name }}</option>
-                                                {% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="tax_rate_{{ detail.id }}">Tax Rate:</label>
-                                            <input type="text" name="tax_rate_{{ detail.id }}" id="tax_rate_{{ detail.id }}" class="form-control" value="{{ detail.tax_rate }}">
-                                        </div>
-                                    </div>
-                                    <hr>
-                                </div>
-                            {% endfor %}
-                        </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <label for="total_{{ detail.id }}">Total</label>
+                            <input type="number" class="form-control total" id="total_{{ detail.id }}" name="total_{{ detail.id }}" value="{{ detail.total }}" readonly>
                         </div>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <div class="form-group mt-3">
+            <button type="submit" class="btn btn-primary">Update Order</button>
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
 </div>
+
+<script>
+    // Function to update the subtotal for a specific order detail item
+    function updateSubtotal(row) {
+        const quantity = parseFloat(row.querySelector('[name^="quantity_"]').value) || 0;
+        const unitPrice = parseFloat(row.querySelector('[name^="unit_price_"]').value) || 0;
+        const discount = parseFloat(row.querySelector('[name^="discount_"]').value) || 0;
+        const taxRate = parseFloat(row.querySelector('[name^="tax_rate_"]').value) || 0;
+
+        let subtotal = quantity * unitPrice;
+        subtotal -= (subtotal * (discount / 100));
+        subtotal += (subtotal * (taxRate / 100));
+
+        row.querySelector('.subtotal').value = subtotal.toFixed(2);
+        updateTotal(); // Update total for all items
+    }
+
+    // Function to update the total for all order detail items
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.subtotal').forEach(subtotalInput => {
+            total += parseFloat(subtotalInput.value) || 0;
+        });
+        document.querySelectorAll('.total').forEach(totalInput => {
+            totalInput.value = total.toFixed(2); // Update each total field
+        });
+    }
+
+    // Initial total calculation on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.order-detail-item').forEach(row => {
+            updateSubtotal(row); // Initialize subtotal values
+        });
+        updateTotal(); // Initialize total values
+    });
+
+    // Event listener for changes in the input fields
+    document.querySelectorAll('[name^="quantity_"], [name^="unit_price_"], [name^="discount_"], [name^="tax_rate_"]').forEach(input => {
+        input.addEventListener('input', function () {
+            updateSubtotal(this.closest('.order-detail-item'));
+        });
+    });
+</script>
 {% endblock %}

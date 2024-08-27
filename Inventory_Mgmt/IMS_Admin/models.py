@@ -2,6 +2,8 @@ from datetime import timezone
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.contrib.auth.hashers import make_password
+from django.utils import timezone
+
 
 class Department(models.Model):
     id = models.CharField(max_length=25, unique=True, primary_key=True)
@@ -87,15 +89,15 @@ class Product(models.Model):
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, to_field="id")
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, to_field="id")
-    upc = models.CharField(max_length=255, unique=True)
-    ean = models.CharField(max_length=255, unique=True)
-    mpn = models.CharField(max_length=255, unique=True)
+    hsn_code = models.CharField(max_length=255, unique=True)
     image = models.ImageField(upload_to="product_images/", null=True, blank=True)
     description = models.TextField()
     is_available = models.BooleanField(default=True)
 
     def __str__(self):
         return self.product_name
+    
+
 
 class Customer(models.Model):
     first_name = models.CharField(max_length=100)
@@ -122,21 +124,103 @@ class Customer(models.Model):
             self.sales_employee_id = self.sales_employee.id
         super(Customer, self).save(*args, **kwargs)
 
-class stock(models.Model):
+class Warehouse(models.Model):
+    name = models.CharField(max_length=255, unique=True)  # Name of the warehouse
+    location = models.TextField()  # Location/address of the warehouse
+    capacity = models.IntegerField()  # Capacity of the warehouse (e.g., max number of units it can store)
+    current_stock = models.IntegerField(default=0)  # Current stock level in the warehouse
+    manager_name = models.ForeignKey(Employee, on_delete=models.CASCADE)  # Name of the warehouse manager
+    manager_contact = models.CharField(max_length=20)  # Contact number of the manager
+    email = models.EmailField(null=True, blank=True)  # Email of the manager
+    contact_number = models.CharField(max_length=20, null=True, blank=True)  # Main contact number for the warehouse
+    notes = models.TextField(null=True, blank=True)  # Additional notes or comments about the warehouse
+
+    def available_capacity(self):
+        # Return the remaining available capacity in the warehouse
+        return self.capacity - self.current_stock
+
+    def __str__(self):
+        return f"{self.name} - {self.location}"
+
+    def clean(self):
+        # Ensure that the current stock does not exceed the capacity
+        if self.current_stock > self.capacity:
+            raise ValidationError('Current stock cannot exceed warehouse capacity.')
+
+    def save(self, *args, **kwargs):
+        # Perform validation before saving the model
+        self.clean()
+        super(Warehouse, self).save(*args, **kwargs)
+
+class Stock(models.Model):
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
-    upc = models.CharField(max_length=255, null=True, blank=True, verbose_name="UPC (Universal Product Code)")
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, to_field='id')
-    mpn = models.CharField(max_length=255, null=True, blank=True, verbose_name="MPN (Supplier Part Number)")
-    product_name = models.ForeignKey(Product, on_delete=models.CASCADE)
-    ean = models.CharField(max_length=255, null=True, blank=True, verbose_name="EAN (European Article Number)")
+    product= models.ForeignKey(Product, on_delete=models.CASCADE)
     stock_status = models.BooleanField(default=True, verbose_name="Stock Status (In Stock)")
     stock_number = models.IntegerField(default=0, verbose_name="Stock Number")
-    
+    low_stock_threshold = models.IntegerField(default=10)
 
-    
+    def check_low_stock(self):
+        if self.stock_number < self.low_stock_threshold:
+            return True
+        return False
+
+    def __str__(self):
+        return f"{self.product.product_name} - {self.warehouse.name}"
+
+class Restock(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
+    purchase_order = models.ForeignKey('PurchaseOrder', on_delete=models.CASCADE)
+    quantity_added = models.PositiveIntegerField()
+    restocked_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    restocked_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Restocked {self.quantity_added} units of {self.product.product_name} at {self.warehouse.name} by {self.restocked_by}"
+
+class StockTransferRequest(models.Model):
+    source_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='outgoing_requests')
+    destination_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='incoming_requests')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending')
+    request_date = models.DateTimeField(auto_now_add=True)
+    fulfilled_date = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Transfer of {self.quantity} {self.product.product_name} from {self.source_warehouse.name} to {self.destination_warehouse.name}"
+
+class StockTransferSend(models.Model):
+    transfer_request = models.ForeignKey(StockTransferRequest, on_delete=models.CASCADE, related_name='sends')
+    source_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='outgoing_transfers')
+    destination_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='incoming_transfers')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity_requested = models.IntegerField()
+    quantity_sent = models.PositiveIntegerField()
+    send_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Sent {self.quantity_sent} units of {self.product.product_name} from {self.source_warehouse.name}"
+
+class StockTransferReceive(models.Model):
+    transfer_request = models.ForeignKey(StockTransferSend, on_delete=models.CASCADE, related_name='receives')
+    destination_warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='incoming_stock')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity_send = models.PositiveIntegerField()
+    damaged_stock = models.PositiveIntegerField()
+    quantity_received = models.PositiveIntegerField()
+    receive_date = models.DateTimeField(auto_now_add=True)
+    discrepancy_notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Received {self.quantity_received} units of {self.product.product_name} at {self.destination_warehouse.name}"
+
 
 class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    warehouse = models.ForeignKey('Warehouse', on_delete=models.SET_NULL, null=True, blank=True)
     order_date = models.DateField(auto_now_add=True)
     sales_employee = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     invoice_generated=models.BooleanField(default=False)
@@ -183,27 +267,11 @@ class OrderDetail(models.Model):
             elif self.tax_type == 'GST':
                 self.tax_rate = 18
 
-        self.adjust_stock_stock()
         super(OrderDetail, self).save(*args, **kwargs)
 
-    def adjust_stock_stock(self):
-        stock_product = stock.objects.filter(upc=self.product.upc).first()
-        
-        if not stock_product:
-            raise ValidationError(f"Product not found in stock: {self.product.product_name}")
+    
 
-        if self.pk:
-            previous_instance = OrderDetail.objects.get(pk=self.pk)
-            previous_quantity = previous_instance.quantity
-            stock_product.stock_number += previous_quantity
-
-        if stock_product.stock_number >= self.quantity:
-            stock_product.stock_number -= self.quantity
-            stock_product.save()
-        else:
-            raise ValidationError(f"Not enough stock available for product: {self.product.product_name}")
-
-class invoice(models.Model):
+class Invoice(models.Model):
     order_id=models.ForeignKey(Order, on_delete=models.CASCADE)
     customer=models.ForeignKey(Customer, on_delete=models.CASCADE)
     invoice_date=models.DateField()
@@ -212,8 +280,8 @@ class invoice(models.Model):
     total_amount=models.DecimalField(max_digits=15, decimal_places=3, editable=False)
 
 
-class invoice_items(models.Model):
-    invoice_id=models.ForeignKey(invoice, on_delete=models.CASCADE)
+class Invoice_items(models.Model):
+    invoice_id=models.ForeignKey(Invoice, on_delete=models.CASCADE)
     product_name=models.ForeignKey(Product, on_delete=models.CASCADE)
     cost_price=models.CharField(max_length=10)
     selling_price=models.CharField(max_length=10)
@@ -250,6 +318,7 @@ class PurchaseOrder(models.Model):
     )
 
     id = models.AutoField(primary_key=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
     order_date = models.DateField(auto_now_add=True)
     expected_delivery_date = models.DateField()
@@ -272,40 +341,6 @@ class PurchaseOrderItem(models.Model):
         return f"{self.product.product_name} - {self.purchase_order.id}"
     
 
-
-
-class WarehouseLocation(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-
-
-class WarehouseStock(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    location = models.ForeignKey(WarehouseLocation, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
-    minimum_stock_level = models.PositiveIntegerField(default=10)
-    last_stocked_date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.product.product_name} - {self.location.name}"
-
-    def check_low_stock(self):
-        return self.quantity <= self.minimum_stock_level
-
-
-class StockReplenishment(models.Model):
-    warehouse_stock = models.ForeignKey(WarehouseStock, on_delete=models.CASCADE)
-    replenishment_date = models.DateField(auto_now_add=True)
-    quantity_added = models.PositiveIntegerField()
-    handled_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return f"Replenishment - {self.warehouse_stock.product.product_name}"
-
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -327,7 +362,7 @@ class AccountsReceivable(models.Model):
     ]
 
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
-    invoice = models.ForeignKey('invoice', on_delete=models.CASCADE)
+    invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE)
     total_amount = models.DecimalField(max_digits=15, decimal_places=2)  # Renamed from amount_due
     balance_due = models.DecimalField(max_digits=15, decimal_places=2)  # Remaining balance
     amount_paid = models.DecimalField(max_digits=15, decimal_places=2, default=0.00)

@@ -29,14 +29,12 @@
     }
 
     .container {
-      margin-top: 80px;
+      margin-top: 50px;
       margin-bottom: 30px;
       width: auto;
-      border: 2px solid #fffefe;
+      
       padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.519);
-      background-color: #ffffff;
+      
     }
 
     .custom-header {
@@ -69,12 +67,14 @@
       padding-top: 1.5%;
       margin-bottom: 20px; 
       box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
-      padding-left: 12%;
+      padding-left: 5%;
+      text-align: center;
     }
 
 
     .buttons {
       margin-left: -15px;
+      text-align:center;
     }
 
   </style>
@@ -83,9 +83,10 @@
 </head>
 <body>
   <div class="container">
-    <h3 class="custom-header">Customer Form</h3>
+    
     <form id="customerForm" method="POST" action="{% url 'add_customers' %}">
       {% csrf_token %}
+      <h3 class="section-title"> Register Customers</h3>
       <div class="row">
 
         <div class="col-md-4">

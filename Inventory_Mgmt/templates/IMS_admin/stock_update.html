@@ -1,0 +1,178 @@
+{% include 'base/base.html' %}
+
+{% load static %}
+{% block title %} Stock Update {% endblock %}
+{% block styles %}
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        padding-left: 1.5%;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        height: 40px;
+        border: 1px solid #dfcdcd;
+        background-color: #ffffff;
+        transition: border-color 0.2s ease-in-out;
+        padding:10px;
+        margin:10px;
+    }
+
+    .form-control:hover {
+        border-color: #4e7454;
+    }
+
+    .form-control:focus {
+        background-color: #f2f2f2;
+        border-color: #4e7454;
+    }
+
+    .container {
+        margin-top: 50px;
+        width: 80%;
+        left: 200px;
+        
+        padding: 20px;
+    
+    }
+
+    .custom-header {
+        text-align: center;
+        color: #264f36;
+        margin-bottom: 30px;
+    }
+
+    select {
+        width: 100%;
+        height: 40px;
+    }
+
+    .custom-file-label {
+        border: 2px solid #ced4da;
+        border-radius: 5px;
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .custom-file-label:hover {
+        background-color: #c6d8ea;
+    }
+
+    .section-title {
+        font-size: 1.2em;
+        color: #000000;
+        background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+        padding-bottom: 10px;
+        padding-top: 1.5%;
+        padding-right: 8%;
+        margin-bottom: 20px;
+        box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+        text-align: center;
+    }
+
+    .buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .table td, .table th {
+        border-top: none;
+        padding-right: 1.5%;
+    }
+
+    .form-section {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .form-section > div {
+        flex: 1;
+        min-width: 50%;
+        padding-right: 10px;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    
+    <form id="stockupdateForm" method="POST" action="{% url 'stockupdate' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <h4 class="section-title">Update Stock</h4>
+                <div class="form-section">
+                    <div>
+                        <label for="warehouse">Warehouse</label>
+                        <select class="form-control" id="warehouse_id" name="warehouse_id" required>
+                            {% for warehouse in warehouses %}
+                                <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="supplier_id">Supplier</label>
+                        <select class="form-control" id="supplier_id" name="supplier_id" required>
+                            {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="brand_id">Brand</label>
+                        <select class="form-control" id="brand_id" name="brand_id" required>
+                            {% for brand in brands %}
+                                <option value="{{ brand.id }}">{{ brand.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="product_name">Product Name</label>
+                        <select class="form-control" id="product_name" name="product_name" required>
+                            {% for product in products %}
+                                <option value="{{ product.product_id }}" data-upc="{{ product.upc }}" data-mpn="{{ product.mpn }}" data-ean="{{ product.ean }}">{{ product.product_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="stock_num">Quantity</label>
+                        <input type="number" class="form-control" id="stock_num" name="stock_num" maxlength="10" required>
+
+                        <label for="min_stock">Min Stock</label>
+                        <input type="number" class="form-control" id="min_stock" name="min_stock" required>
+
+                        
+                    </div>
+                </div>
+                <div class="col-md-12 mt-4">
+                    <div class="buttons">
+                        <button type="submit" class="btn btn-sm btn-primary mr-2">Submit</button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="clearForm()">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#product_name').change(function () {
+            var selectedProduct = $(this).find(':selected');
+            $('#upc').val(selectedProduct.data('upc'));
+            $('#mpn').val(selectedProduct.data('mpn'));
+            $('#ean').val(selectedProduct.data('ean'));
+        });
+    });
+
+    function clearForm() {
+        $('#stockupdateForm')[0].reset();
+    }
+</script>
+{% endblock %}

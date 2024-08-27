@@ -21,24 +21,22 @@
         padding: 10px; 
         display: flex;
         justify-content: center;
+        
     }
 
    .card {
-        width: calc(100% - 9%);
-        border: 2px solid #040404cc;
-        border-radius: 10px;
+        width: calc(100% - 7%);
+       
         padding: 10px;
         padding-right: 10px; 
         margin-top: 20px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.345);
+        
     }
     .card-header p {
         margin-bottom: 5px;
         color: #171e17;
     }
-    .card-header {
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.678); 
-    }
+    
     #totalTaxAmount,
     #totalAmount {
         background-color: #6f756f; 
@@ -111,13 +109,13 @@
                             <tr style="background-color: #808d80;">
                                 <th>Sl. No</th>
                                 <th class="description">Description</th>
+                                <th>Qty</th>
                                 <th>Unit Price</th>
                                 <th>Discount</th>
-                                <th>Qty</th>
-                                <th>Net Amount</th>
-                                <th>Tax Rate</th>
                                 <th>Tax Type</th>
-                                <th>Tax Amount</th>
+                                <th>Tax Rate</th>
+                                <th>Net Amount</th>
+
                                 <th>Total Amount</th>
                             </tr>
                         </thead>
@@ -126,13 +124,15 @@
                             <tr>
                                 <td>{{ forloop.counter }}</td>
                                 <td class="description"><b>{{ item.product_name }}</b> - {{ item.description }}</td>
+                                <td>{{ item.quantity }}</td>
                                 <td>{{ item.selling_price }}</td>
                                 <td>{{ item.discount|default:"0" }}</td>
-                                <td>{{ item.quantity }}</td>
-                                <td>{{ item.net_amount }}</td>
-                                <td>{{ item.tax_rate|default:"0" }}</td>
                                 <td>{{ item.tax_type|default:"0" }}</td>
-                                <td>{{item.tax_amount|default:"0"}}</td>
+                                <td>{{ item.tax_rate|default:"0" }}</td>
+                                
+                                <td>{{ item.net_amount }}</td>
+                                
+                                
                                 <td class="net-total">{{ item.net_amount }}</td>
                             </tr>
                             {% endfor %}
@@ -140,8 +140,8 @@
                         <tfoot>
                             <tr>
                                 <td colspan="8" class="text-right">Total:</td>
-                                <td id="totalTaxAmount">₹0.00</td>
-                                <td id="totalAmount">₹0.00</td>
+                                
+                                <td id="totalTaxAmount"></td>
                             </tr>
                             <tr>
                                 <td colspan="10" class="text-left">
@@ -233,7 +233,7 @@ $(document).ready(function() {
         });
         $('#totalTaxAmount').text('₹' + totalTaxAmount.toFixed(2));
         $('#totalAmount').text('₹' + totalAmount.toFixed(2));
-        updateTotalInWords(totalAmount);
+        updateTotalInWords(totalTaxAmount);
     }
     calculateTotal();
 

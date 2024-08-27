@@ -1,0 +1,154 @@
+{% include 'base/base.html' %}
+{% load static %}
+
+{% block title %} Stock Transfer Request {% endblock %}
+
+{% block styles %}
+<style>
+  body {
+    padding-left: 250px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  .form-control {
+    border-radius: 5px;
+    height: 40px;
+    border: 1px solid #dfcdcd;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease-in-out;
+  }
+
+  .form-control:hover {
+    border-color: #4e7454;
+  }
+
+  .form-control:focus {
+    background-color: #f2f2f2;
+    border-color: #4e7454;
+  }
+
+  .container {
+    margin: 80px 80px 30px 0px;
+    padding-top: 50px;
+    width: 100%;
+    
+    padding: 20px;
+    
+  }
+
+  .custom-header {
+    text-align: center;
+    color: #264f36;
+    margin-bottom: 30px;
+  }
+
+  select.form-control {
+    width: 100%;
+    height: 40px;
+  }
+
+  .custom-file-label {
+    border: 2px solid #ced4da;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  .custom-file-label:hover {
+    background-color: #c6d8ea;
+  }
+
+  .section-title {
+    font-size: 1.2em;
+    color: #000000;
+    background: linear-gradient(90deg, rgb(176, 222, 208) 0%, rgb(85, 190, 113) 100%);
+    padding-bottom: 10px;
+    padding-top: 1.5%;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 6px rgba(73, 70, 70, 0.433), 0px 1px 3px rgba(95, 102, 126, 0.08);
+    
+    text-align: center;
+  }
+
+  .buttons {
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <form method="post" action="{% url 'edit_stock_transfer_request' request.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="request_id" value="{{ request.id }}">
+      <h4 class="section-title">Edit Stock Transfer Request Details</h4>
+      <div class="form-group">
+        <label for="request_date">Request Date</label>
+        <input type="datetime-local" class="form-control" id="request_date" name="request_date" value="{{ request.request_date|date:'Y-m-d\TH:i' }}" required>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="source_warehouse">Requested From</label>
+            <select name="source_warehouse" id="source_warehouse" class="form-control" required>
+              {% for warehouse in warehouses %}
+              <option value="{{ warehouse.id }}" {% if warehouse.id == request.source_warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="destination_warehouse">Requested To</label>
+            <select name="destination_warehouse" id="destination_warehouse" class="form-control" required>
+              {% for warehouse in warehouses %}
+              <option value="{{ warehouse.id }}" {% if warehouse.id == request.destination_warehouse.id %}selected{% endif %}>{{ warehouse.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="product">Product</label>
+            <select class="form-control" id="product_name" name="product_name" required>
+              {% for product in products %}
+              <option value="{{ product.product_id }}" {% if product.product_id == request.product.product_id %}selected{% endif %}>{{ product.product_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" name="quantity" min="1" value="{{ request.quantity }}" required>
+          </div>
+        </div>
+      </div>
+  
+      <div class="buttons mt-4">
+        <button type="submit" class="btn btn-sm btn-primary mr-2">Update</button>
+        <button type="reset" class="btn btn-sm btn-danger">Clear</button>
+      </div>
+    </form>
+  </div>
+  
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Select2 JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+
+{% endblock %}
