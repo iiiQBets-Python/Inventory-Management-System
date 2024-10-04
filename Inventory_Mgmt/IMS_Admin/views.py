@@ -1431,12 +1431,11 @@ def add_warehouse(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         location = request.POST.get('location')
-        capacity = request.POST.get('capacity')
-        current_stock = request.POST.get('current_stock')
+        capacity = int(request.POST.get('capacity'))
+        current_stock = int(request.POST.get('current_stock'))
         manager_name = request.POST.get('manager_name')
         contact_number = request.POST.get('contact_number')
         notes = request.POST.get('notes', '')
-
         manager_instance = Employee.objects.get(pk=manager_name)
 
         warehouse = Warehouse(
@@ -1748,49 +1747,48 @@ def stock_transfer_send(request):
         transfer_request_id = request.POST.get('transfer_request_id')
         quantity_sent = request.POST.get('quantity_sent')
 
-        try:
-            if not transfer_request_id or not quantity_sent:
-                raise ValueError("Transfer request and quantity sent are required.")
-            
-            transfer_request = StockTransferRequest.objects.get(id=transfer_request_id)
-            quantity_sent = int(quantity_sent)
-            
-            if quantity_sent <= 0:
-                raise ValueError("Quantity sent must be a positive integer.")
-            
-            # Fetch Stock records
-            source_stock = Stock.objects.get(warehouse=transfer_request.source_warehouse, product=transfer_request.product)
-            destination_stock = Stock.objects.get_or_create(warehouse=transfer_request.destination_warehouse, product=transfer_request.product, defaults={'stock_number': 0})[0]
-            
-            if quantity_sent > source_stock.stock_number:
-                raise ValueError("Not enough stock in the source warehouse.")
-            
-            # Update stock numbers
-            source_stock.stock_number -= quantity_sent
-            
-            
-            # Save updated stock records
-            source_stock.save()
-            destination_stock.save()
-
-            # Save the transfer record
-            stock_transfer_send = StockTransferSend(
-                transfer_request=transfer_request,
-                source_warehouse=transfer_request.source_warehouse,
-                destination_warehouse=transfer_request.destination_warehouse,
-                product=transfer_request.product,
-                quantity_requested=transfer_request.quantity,
-                quantity_sent=quantity_sent
-            )
-            stock_transfer_send.save()
-
-            return redirect(reverse('stock_transfer_send_table'))
+        if not transfer_request_id or not quantity_sent:
+            raise ValueError("Transfer request and quantity sent are required.")
         
-        except (ValueError, StockTransferRequest.DoesNotExist, Stock.DoesNotExist, ValidationError) as e:
-            return render(request, 'IMS_admin/stock_transfer_send.html', {
-                'error': str(e),
-                'transfer_requests': transfer_requests
-            })
+        transfer_request = StockTransferRequest.objects.get(id=transfer_request_id)
+        quantity_sent = int(quantity_sent)
+        
+        if quantity_sent <= 0:
+            raise ValueError("Quantity sent must be a positive integer.")
+        
+        # Fetch Stock records
+        source_stock = Stock.objects.get(warehouse=transfer_request.source_warehouse, product=transfer_request.product)
+        destination_stock = Stock.objects.get_or_create(warehouse=transfer_request.destination_warehouse, product=transfer_request.product, brand=source_stock.brand, supplier=source_stock.supplier,defaults={'stock_number': 0})[0]
+        
+        if quantity_sent > source_stock.stock_number:
+            raise ValueError("Not enough stock in the source warehouse.")
+        
+        # Update stock numbers
+        source_stock.stock_number -= quantity_sent
+        
+        
+        # Save updated stock records
+        source_stock.save()
+        destination_stock.save()
+
+        # Save the transfer record
+        stock_transfer_send = StockTransferSend(
+            transfer_request=transfer_request,
+            source_warehouse=transfer_request.source_warehouse,
+            destination_warehouse=transfer_request.destination_warehouse,
+            product=transfer_request.product,
+            quantity_requested=transfer_request.quantity,
+            quantity_sent=quantity_sent
+        )
+        stock_transfer_send.save()
+
+        return redirect(reverse('stock_transfer_send_table'))
+    
+
+        return render(request, 'IMS_admin/stock_transfer_send.html', {
+            'error': str(e),
+            'transfer_requests': transfer_requests
+        })
 
     return render(request, 'IMS_admin/stock_transfer_send.html', {
         'transfer_requests': transfer_requests
